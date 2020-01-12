@@ -1,0 +1,152 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
+    link(rel='stylesheet' href='style.css')
+    meta(name='description', content='Atheios play - Play with Atheios.')
+    meta(name='keywords', content='Crypto currency, gaming, ath, atheios')
+    meta(property='og:title', content='Atheios play - Play with Atheios, it is about the game')
+    meta(property='og:description', content='Portal for gamers')
+    meta(property='og:image', content='https://play.atheios.org/images/ath_60x60.png')
+    meta(property='og:url', content='https://play.atheios.org')
+    meta(name='twitter:card', content='https://play.atheios.org/images/ath_60x60.png')
+    // Non-Essential, But Recommended
+    meta(property='og:site_name', content='Atheios play')
+    meta(name='twitter:image:alt', content='Atheios play - Gaming using the Atheios blockchain')
+    link(href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700&amp;subset=cyrillic" rel="stylesheet")
+
+    link(href='vendor/bootstrap/css/bootstrap.min.css', rel='stylesheet')
+    // Custom Fonts
+    link(href='vendor/fontawesome-free/css/all.min.css', rel='stylesheet', type='text/css')
+    link(href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic', rel='stylesheet', type='text/css')
+    link(href='vendor/simple-line-icons/css/simple-line-icons.css', rel='stylesheet')
+    // Custom CSS
+    link(href='css/stylish-portfolio.min.css', rel='stylesheet')
+
+body
+  .kpicss_bg-img
+    nav.navbar.navbar-expand-lg.navbar-light
+      a.navbar-brand(href='/').text-light
+        img(src='images/ath_60x60.png', alt='Atheios Play - Play with Atheios').align-middle
+        |  Atheios gamer portal | #{version}
+      button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarSupportedContent', aria-controls='navbarSupportedContent', aria-expanded='false', aria-label='Toggle navigation')
+        span.navbar-toggler-icon
+      #navbarSupportedContent.collapse.navbar-collapse
+        ul.nav.navbar-nav.ml-auto
+          li.nav-item.active.text-light
+            a.h5.nav-link(href='/').text-light
+              | Home
+              span.sr-only (current)
+          li.nav-item.dropdown
+            if !user
+              a#navbarDropdown.h5.nav-link.text-light.dropdown-toggle(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+                | Account
+              .dropdown-menu(aria-labelledby='navbarDropdown')
+                a.dropdown-item(href='/register') Register
+                a.dropdown-item(href='/login') Login
+            else
+              a#navbarDropdown.h5.nav-link.text-light.dropdown-toggle(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+                | #{user.username}
+              .dropdown-menu(aria-labelledby='navbarDropdown')
+                a.dropdown-item(href='/account') Account
+                a.dropdown-item(href='/logout') Logout
+
+
+
+          li.nav-item.dropdown
+            a#navbarDropdown.h5.nav-link.text-light.dropdown-toggle(href='/', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+              | Atheios links
+            .dropdown-menu.dropdown-menu-right(aria-labelledby='navbarDropdown')
+              a.dropdown-item.disabled(href='https://play.atheios.org') Atheios gamer portal
+                a.dropdown-item(href='/whatsnew') What is new
+                a.dropdown-item(href='/contact') Contact
+              .dropdown-divider
+              a.dropdown-item(href='https://www.atheios.org') Atheios website
+              a.dropdown-item(href='https://explorer.atheios.org') Atheios explorer
+              a.dropdown-item(href='https://stats.atheios.org') Atheios statistics
+              a.dropdown-item(href='https://api.atheios.org') Atheios API
+              a.dropdown-item(href='https://portal.atheios.org') Atheios Portal
+              a.dropdown-item(href='https://docs.atheios.org') Atheios documentation
+
+              .dropdown-divider
+              a.dropdown-item(href='https://bloxxchain.atheios.org') Bloxxchain
+
+
+  .container
+      != messages('message', locals)
+      if errors
+        each error, i in errors
+          div(class="alert alert-danger") #{error.msg}
+  .container
+  block content
+  p
+.container-fluid.bg-dark
+  footer
+    .row
+      .col-12.col-lg-3.m-5
+        .font-semibold.text-sm.mb-3
+          .text-xs.row
+            h5.text-light About Atheios
+            p.text-light Atheios is a cryptocurrency dedicated for gaming. The cryptocurrency is community developed and is aiming to build a vast ecosystem. We believe that only an open-sourced, community driven chain can get wider and cross project adoption. Join the game changer.
+            p.text-light Track us on
+            br
+          img(src='images/blockfolio.png')
+      .col-12.col-lg-3.m-5
+        .font-semibold.text-sm.mb-3
+          .text-xs.row
+            h5.text-light About this site
+            p.text-light This site is a portal for Atheios supported games.
+            p.text-light If You want to support this site Your can pledge any amount to the below addresses:
+            br
+            .text-warning
+              i.fab.fa-btc.mr-1.w-4(aria-hidden="true")
+              | BTC 1JCivbdLbvBAE1JK3K2tCfrVFA5A3WoCbc
+            .text-warning
+              i.fab.fa-ethereum.mr-1.w-4(aria-hidden="true")
+              | ETH 0x6b23806BF3eE2cCc31eCc224221861F03B48D55F
+
+      .col-12.col-lg-3.m-5
+        .font-semibold.text-sm.mb-3
+          .text-xs.row
+            h5.text-light Follow us
+            p
+            .mb-3.col-6.col-lg-12
+              a.text-muted(href="https://twitter.com/atheiosofficial" target="_blank")
+                i.fab.fa-twitter.mr-1.w-4.text-white(aria-hidden="true")
+                | Twitter
+            .mb-3.col-6.col-lg-12
+              a.text-muted(href="https://t.me/atheiosoffical" target="_blank")
+                i.fab.fa-telegram.mr-1.w-4.text-white(aria-hidden="true")
+                | Telegram Official
+            .mb-3.col-6.col-lg-12
+              a.text-muted(href="https://t.me/atheioschain" target="_blank")
+                i.fab.fa-telegram.mr-1.w-4.text-white(aria-hidden="true")
+                | Telegram News
+            .mb-3.col-6.col-lg-12
+              a.text-muted(href="https://discord.gg/SdCUQUu" target="_blank")
+                i.fab.fa-discord.mr-1.w-4.text-white(aria-hidden="true")
+                | Discord
+            .mb-3.col-6.col-lg-12
+              a.text-muted(href="https://medium.com/@GreedMOTO" target="_blank")
+                i.fab.fa-medium.mr-1.w-4.text-white(aria-hidden="true")
+                | Medium
+            .mb-3.col-6.col-lg-12
+              a.text-muted(href="https://bitcointalk.org/index.php?topic=3444373.0" target="_blank")
+                i.fab.fa-btc.mr-1.w-4.text-white(aria-hidden="true")
+                | BitcoinTalk
+            .mb-3.col-6.col-lg-12
+              a.text-muted(href="https://www.reddit.com/r/Atheios/®" target="_blank")
+                i.fab.fa-reddit.mr-1.w-4.text-white(aria-hidden="true")
+                | Reddit
+
+          p.text-light
+    .row
+      p.text-sm-center.small COPYRIGHT &copy; 2019 BY Atheios. ALL RIGHTS RESERVED.
+  // Bootstrap core JavaScript
+  script(src='vendor/jquery/jquery.min.js')
+  script(src='vendor/bootstrap/js/bootstrap.bundle.min.js')
+  // Plugin JavaScript
+  script(src='vendor/jquery-easing/jquery.easing.min.js')
+  // Custom scripts for this template
+  script(src='js/stylish-portfolio.min.js')

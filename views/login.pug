@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  header.registerhead.d-flex
+    .container.align-bottom
+      h1.mb-1.text-secondary Login
+  .overlay
+  .container
+    form(method='POST', action='/login')
+      #form-group
+        label Username:
+        input.form-control(name='username',type='text', autofocus, autocomplete='username')
+      #form-group
+        label Password:
+        input.form-control(name='password',type='password' autocomplete='password')
+      br
+      input.btn.btn-primary(type='submit',value='Submit')

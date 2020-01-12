@@ -1,0 +1,101 @@
+extends layout
+
+block content
+  // Header
+  header.masthead.d-flex
+    .container.text-center.align-bottom
+      h1.mb-1.text-secondary Join the game
+      h3.mb-5.text-secondary
+        em powered by Atheios crypto currency
+      a.btn.btn-warning.btn-xl.js-scroll-trigger(href='#about') Find Out More
+    .overlay
+  // About
+  section#about.content-section.bg-light
+    .container.text-center
+      .row
+        .col-lg-10.mx-auto
+          h2 Join Atheios and get rewarded
+          p.lead.mb-5
+            | When You are good at a game You have spent time and energy. We think Your skill should be rewarded.
+            | Just register for Atheios, get a couple of Atheios and engage in the finest selection of games.
+            | And if You are good at it You can earn a lot of Atheios.
+          // Call to Action
+          section.content-section.bg-warning.text-black
+            .container.text-center
+              h2.mb-4 Get ready
+              a.btn.btn-xl.btn-light.mr-4(href='register') Register!
+              a.btn.btn-xl.btn-dark(href='login') Login!
+  // Portfolio
+  section#portfolio.content-section
+    .container
+      .content-section-heading.text-center
+        h3.text-secondary.mb-0 Games with Atheios support
+        h2.mb-5 Browser games
+      .row.no-gutters
+        .col-lg-6
+          a.portfolio-item(href='#')
+            span.caption
+              span.caption-content
+                h2 Game A
+                p.mb-0 A yellow pencil with envelopes on a clean, blue backdrop!
+            img.img-fluid(src='img/portfolio-1.jpg', alt='')
+        .col-lg-6
+          a.portfolio-item(href='#')
+            span.caption
+              span.caption-content
+                h2 Game 2
+                p.mb-0 A dark blue background with a colored pencil, a clip, and a tiny ice cream cone!
+            img.img-fluid(src='img/portfolio-2.jpg', alt='')
+        .col-lg-6
+          a.portfolio-item(href='#')
+            span.caption
+              span.caption-content
+                h2 Game 3
+                p.mb-0 Strawberries are such a tasty snack, especially with a little sugar on top!
+            img.img-fluid(src='img/portfolio-3.jpg', alt='')
+        .col-lg-6
+          a.portfolio-item(href='#')
+            span.caption
+              span.caption-content
+                h2 Game 4
+                p.mb-0 A yellow workspace with some scissors, pencils, and other objects.
+            img.img-fluid(src='img/portfolio-4.jpg', alt='')
+
+  // Services
+  section#services.content-section.bg-warning.text-black.text-center
+    .container
+      .content-section-heading
+        h3.mb-0 Are You a game developer?
+        h2.mb-5 What We Offer
+      .row
+        .col-lg-3.col-md-6.mb-5.mb-lg-0
+          span.service-icon.rounded-circle.mx-auto.mb-3
+            i.icon-screen-smartphone
+          h4
+            strong Simple integration
+          p.mb-0 Works with several platforms
+        .col-lg-3.col-md-6.mb-5.mb-lg-0
+          span.service-icon.rounded-circle.mx-auto.mb-3
+            i.icon-pencil
+          h4
+            strong Support of different platforms
+          p.mb-0 Simple integration
+        .col-lg-3.col-md-6.mb-5.mb-md-0
+          span.service-icon.rounded-circle.mx-auto.mb-3
+            i.icon-like
+          h4
+            strong Popular
+          p.mb-0 25 games and counting
+        .col-lg-3.col-md-6.mb-5.mb-md-0
+          span.service-icon.rounded-circle.mx-auto.mb-3
+            i.icon-question
+          h4
+            strong Question
+          p.mb-0 We have the answers...
+
+
+
+
+
+
+

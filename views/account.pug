@@ -1,0 +1,46 @@
+extends layout
+
+block content
+  header.registerhead.d-flex
+    .container.align-bottom
+      h1.mb-1.text-secondary Account management for #{user.username}
+  .overlay
+  .container
+    p You have logged in #{user.logincnt} times. You have currently the rank #{rank}.
+    h3 Edit account data
+    .container
+      form(method='POST', action='/update')
+        #form-group
+          label Username:
+          input.form-control(name='name', type='text', value=user.username)
+        #form-group
+          label Email:
+          input.form-control(name='email', type='text', value=user.email)
+        #form-group
+          label Your ATH main account
+          input.form-control(name='athaddr',type='text', placeholder="0x...", value=user.athaddr)
+          <small id="depositHelp" class="form-text text-muted">This will be Your ATH gaming account address.</small>
+          input.btn.btn-primary(type='submit',value='Submit')
+          p
+
+    h3 Edit password
+    .container
+      form(method='POST', action='/updatepassword')
+        #form-group
+          label Password:
+          input.form-control(name='password',type='password')
+        #form-group
+          label Confirm:
+          input.form-control(name='password2',type='password')
+        br
+        input.btn.btn-primary(type='submit',value='Submit')
+    p
+    h3 Delete account
+    .container
+      When You delete Your account Your ATH will be lost and this step is irrevocable. In order to process the deletion You need to enter below the code 007
+      form(method='POST', action='/delete')
+        #form-group
+          label Confirmation code:
+          input.form-control(name='password',type='text')
+        br
+        input.btn.btn-primary(type='submit',value='Delete Account')
