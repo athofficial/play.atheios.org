@@ -70,23 +70,6 @@ app.use(function (req, res, next) {
   next();
 });
 
-// Express Validator Middleware
-app.use(expressValidator({
-  errorFormatter: function(param, msg, value) {
-    var namespace = param.split('.')
-        , root    = namespace.shift()
-        , formParam = root;
-
-    while(namespace.length) {
-      formParam += '[' + namespace.shift() + ']';
-    }
-    return {
-      param : formParam,
-      msg   : msg,
-      value : value
-    };
-  }
-}));
 
 // Passport Config
 require('./config/passport')(passport);
@@ -124,7 +107,7 @@ app.use(function(req, res, next) {
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  res.locals.error = config.development ? err : {};
 
   // render the error page
   res.status(err.status || 500);

@@ -1,15 +1,10 @@
 // Setting up the logger for the project
 // -> console & file
-const fs = require('fs');
-const path = require('path');
 const winston = require('winston');
-const filename = path.join(__dirname+'/log/', 'created-logfile.log');
+const path = require('path');
+const filename = path.join(process.cwd()+'/Logs/', 'created-logfile.log');
 
-//
-// Remove the file, ignoring any errors
-//
-try { fs.unlinkSync(filename); }
-catch (ex) { }
+
 
 const logger = module.exports = winston.createLogger({
     format: winston.format.combine(
@@ -43,8 +38,6 @@ const logger = module.exports = winston.createLogger({
         )
     ]
 });
-
-logger.warn("Logger module initialized.");
 
 
 

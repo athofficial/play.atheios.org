@@ -1,3 +1,6 @@
+const logger = require("./logger");
+
+
 //static data to don't have to generate the conf_adata 2 times
 let config_data = null;
 module.exports = function() {
@@ -8,12 +11,12 @@ module.exports = function() {
 
     config_data = {}
 //LOAD JSON
-    if (process.env.NODE_ENV == 'production') {
-        config_data = require('./config/config.production.json');
-        console.log("... Production");
-    } else {
+    if (process.env.NODE_ENV == 'development') {
         config_data = require('./config/config.development.json');
-        console.log("... Development");
+        logger.info("Reading development config");
+    } else {
+        config_data = require('./config/config.production.json');
+        logger.info("Reading production config");
     }
-   return config_data
+    return config_data
 }

@@ -4,12 +4,26 @@
  * Module dependencies.
  * */
 
+
+// Prepare for logging
+const fs = require('fs');
+const path = require('path');
+const filename = path.join(process.cwd()+'/Logs/', 'created-logfile.log');
+
+//
+// Remove the file, ignoring any errors
+//
+try { fs.unlinkSync(filename); }
+catch (ex) { }
+
+var logger = require("../logger");
+logger.info("Logging initiated");
+
 global.config = require("../config")();
 
 var app = require('../app');
 var debug = require('debug')('play:server');
 var http = require('http');
-var logger = require("../logger");
 
 
 /**
