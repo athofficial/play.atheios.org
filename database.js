@@ -17,7 +17,8 @@ class Database {
         });
     }
     mysqlSecElapsed(timestr) {
-        console.log(timestr);
+        if (timestr===null)
+            return(1000);
         var date = new Date();
         var now_utc = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),
             date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());

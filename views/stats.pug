@@ -1,0 +1,20 @@
+extends layout
+
+block content
+    header.registerhead.d-flex
+        .container.align-bottom
+            h1.mb-1.text-secondary PLAY portal stats
+    .container
+        section.bg-warning.text-black
+            .container
+                h2 General
+                table.table
+                    tr
+                        th Users
+                        th Logins
+                    tbody
+                    tr
+                        td
+                            = registeredUser
+                        td
+                            = logincnt

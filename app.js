@@ -14,7 +14,7 @@ const passport = require('passport');
 
 // Define the globals
 global.debugon=true;
-global.version="0.0.8";
+global.version="0.0.9";
 
 // Init database
 if (global.config.development) {
@@ -28,7 +28,7 @@ else {
 const Database=require('./database');
 global.pool=new Database();
 
-
+global.ATHaddress=global.config.ATHADDRESS;
 
 // Define express and routes
 let indexRouter = require('./routes/index');
@@ -36,6 +36,8 @@ let whatsnew = require('./routes/whatsnew');
 let users = require('./routes/users');
 let gamesRouter = require('./routes/game');
 let contactRouter = require('./routes/contact');
+let funds = require('./routes/funds');
+let statsrouter = require('./routes/stats');
 
 var app = express();
 
@@ -95,7 +97,9 @@ app.use('/', whatsnew);
 app.use('/', users);
 app.use('/', gamesRouter);
 app.use('/', contactRouter);
+app.use('/', statsrouter);
 
+app.use('/', funds);
 
 
 // catch 404 and forward to error handler

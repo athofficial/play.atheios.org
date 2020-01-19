@@ -24,8 +24,22 @@ else {
 
 
 var version = web3.version;
-const ATHPASS="2334frrweq536474hdbvsadjinu5gp34ngturqn";
+const ATHPASS=config.ATHPASS;
 const ATHFEE= "0.00242002";
+
+var subscription = web3.eth.subscribe('pendingTransactions', function(error, result){
+    if (!error)
+        console.log("Subscription: %s",result);
+})
+    .on("data", function(transaction){
+        console.log("Subscription TX: %s", transaction);
+    });
+
+// unsubscribes the subscription
+//subscription.unsubscribe(function(error, success){
+//    if(success)
+//        console.log('Successfully unsubscribed!');
+//});
 
 exports.athGetAddress = function(cb) {
     var rows;

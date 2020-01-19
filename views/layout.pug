@@ -49,6 +49,7 @@ body
               a#navbarDropdown.h5.nav-link.text-light.dropdown-toggle(href='#', role='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
                 | #{user.username}
               .dropdown-menu(aria-labelledby='navbarDropdown')
+                a.dropdown-item(href='/funds') Funds
                 a.dropdown-item(href='/account') Account
                 a.dropdown-item(href='/logout') Logout
 
@@ -60,6 +61,7 @@ body
             .dropdown-menu.dropdown-menu-right(aria-labelledby='navbarDropdown')
               a.dropdown-item.disabled(href='https://play.atheios.org') Atheios gamer portal
                 a.dropdown-item(href='/whatsnew') What is new
+                a.dropdown-item(href='/stats') Statistics
                 a.dropdown-item(href='/contact') Contact
               .dropdown-divider
               a.dropdown-item(href='https://www.atheios.org') Atheios website

@@ -1,0 +1,163 @@
+extends layout
+
+block content
+  header.registerhead.d-flex
+    .container.align-bottom
+      h1.mb-1.text-secondary Fund management for #{user.username}
+  .container
+    section.bg-warning.text-black
+      .container
+        h2 Your funds
+        p You have two accounts. A transfer account which is the one You can deposit or withdraw funds from everywhere in the Atheios ecosystem.
+        .bd-example.bg-white
+          .d-flex.flex-row.align-items-baseline.bg-white
+            .p-2 Your transfer account
+            .input-group-prepend
+              .input-group-text Value
+              input#amount.form-control(size='50', type='text' name='athvalue', aria-describedby='inputGroupPrepend', required='', value=amount, disabled)
+              .p-2
+            .input-group-prepend
+              .input-group-text Address
+              input#athaddr.form-control(type='text', name='athaddress', aria-describedby='inputGroupPrepend', required='', value=user.athaddr, disabled)
+              button(onclick="myFunction('athaddr')") Copy
+
+        p ... and a gaming account which will be used in any games in the Atheios ecosystem.
+        .bd-example.bg-white
+          .d-flex.flex-row.align-items-baseline.bg.white
+            .p-2 Your game account
+            .input-group-prepend
+              .input-group-text Value
+              input#hotvalue.form-control(type='text' name='hotvalue', aria-describedby='inputGroupPrepend', required='', value=user.athamount)
+        .p-2
+    h3 Sending coins from Your transfer to Your gaming account
+    .container
+      form(method='POST', action='/funds/movetogaming')
+        .container
+          #form-group
+            .input-group
+              .input-group-prepend
+                span#inputGroupPrepend.input-group-text Transfer account, ATH
+              input#validationATHaddr.form-control(type='text' name='athamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='', readonly, value=amount)
+            p
+            .input-group
+              .input-group-prepend
+                span#inputGroupPrepend.input-group-text Game account ATH
+              input#validationATH.form-control(type='text', name='hotamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='', readonly, value=user.athamount)
+            p
+            .input-group
+              .input-group-prepend
+                span#inputGroupPrepend.input-group-text ATH to transfer
+                input#validationATH.form-control(type='text', name='transferamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='')
+            small#validationATHHelp.form-text.text-muted
+              | Current transaction fee: 0.00042002 ATH. Amount needs to be atleast reduced with that.
+          p
+            .invalid-feedback
+              | Please choose an amount to send to Your bloxxchain account
+          #form-group
+            input.btn.btn-primary(type='submit',value='Transfer')
+            p
+
+    h3 Sending coins from Your gaming to Your transfer account
+    .container
+      form(method='POST', action='/funds/movetotransfer')
+        .container
+          #form-group
+            .input-group
+              .input-group-prepend
+                span#inputGroupPrepend.input-group-text Bloxxchain account ATH
+              input#validationATH.form-control(type='text', name='hotamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='', readonly, value=user.athamount)
+            p
+            .input-group
+              .input-group-prepend
+                span#inputGroupPrepend.input-group-text Transfer account, ATH
+              input#validationATHaddr.form-control(type='text' name='athamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='', readonly, value=amount)
+            p
+            .input-group
+              .input-group-prepend
+                span#inputGroupPrepend.input-group-text ATH to transfer
+                input#validationATH.form-control(type='text', name='transferamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='')
+            small#validationATHHelp.form-text.text-muted
+              | Current transaction fee: 0.00042002 ATH. Amount needs to be atleast reduced with that.
+          p
+            .invalid-feedback
+              | Please choose an amount to send to the local atheios account
+          #form-group
+            input.btn.btn-primary(type='submit',value='Transfer back')
+            p
+
+    h3 Withdrawl from Your transfer account to external accounts
+    .container
+      form(method='POST', action='/funds/withdraw')
+        .container
+          #form-group
+            .input-group.mb-3
+              .input-group-prepend
+                span#inputGroupPrepend.input-group-text From
+                input#withdrawTranserAddr.form-control(size='50', type='text' name='athaddress', aria-label="Transfer address" ,aria-describedby='inputGroupPrepend', required='', value=user.athaddr, disabled)
+                .p-2
+              .input-group-prepend
+                span#inputGroupPrepend.input-group-text ATH
+                input#withdrawTranserValue.form-control(type='text', name='amount', placeholder='Amount',aria-label="Value stored in transfer account", aria-describedby='inputGroupPrepend', required='', disabled, value=amount)
+
+            .input-group
+              .input-group-prepend
+                span#inputGroupPrepend.input-group-text To
+                input#validationATHdeposit.form-control(size='50', type='text' name='depositaddr', aria-describedby='inputGroupPrepend', required='', value=user.depositaddr)
+            p
+            .input-group
+              .input-group-prepend
+                span#inputGroupPrepend.input-group-text ATH to transfer
+                input#validationATH.form-control(type='text', name='transferamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='')
+            small#validationATHHelp.form-text.text-muted
+              | Current transaction fee: 0.00042002 ATH. Amount needs to be atleast reduced with that.
+
+          input.btn.btn-primary(type='submit',value='Withdraw')
+          p
+    h3 Statistics
+    .container
+      p The 10 recent events with regards to Your account
+        table.table
+          tr
+            th Date
+            th From
+            th To
+            th value
+            th State
+            th TX
+          tbody
+            each rows in log
+              tr
+              td
+                = rows.startdate
+              td
+                if (rows.fromaddr===user.athaddr)
+                  a(href="https://explorer.atheios.org/address/" + rows.fromaddr) Transfer account
+                else if (rows.fromaddr === local)
+                  a(href="https://explorer.atheios.org/address/" + rows.fromaddr) Game account
+                else
+                  a(href="https://explorer.atheios.org/address/" + rows.fromaddr) Ext address
+
+              td
+                if (rows.toaddr === user.athaddr)
+                  a(href="https://explorer.atheios.org/address/" + rows.toaddr) Transfer account
+                else if (rows.toaddr === local)
+                  a(href="https://explorer.atheios.org/address/" + rows.toaddr) Game account
+                else
+                  a(href="https://explorer.atheios.org/address/" + rows.toaddr) Ext address
+
+              td
+                = rows.amount
+              td
+                if (rows.status==1)
+                  p Finished
+                if (rows.status==2)
+                  p Ongoing
+              td
+                a(href="https://explorer.atheios.org/tx/" + rows.tx) TX link
+  script.
+    function myFunction(inputvar) {
+      var copyText = document.getElementById(inputvar);
+      copyText.select();
+      copyText.setSelectionRange(0, 99999)
+      document.execCommand("copy");
+    }

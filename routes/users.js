@@ -108,6 +108,13 @@ router.post('/register', function(req, res){
 });
 
 
+// logout
+router.get('/logout', function(req, res){
+  req.logout();
+  req.flash('success', 'You are logged out');
+  res.redirect('/login');
+});
+
 // Confirmation Proccess
 router.get('/activate', function(req, res){
   var option=0;
@@ -376,12 +383,52 @@ router.post('/login', function(req, res, next){
   });
 });
 
-// logout
-router.get('/logout', function(req, res){
-  req.logout();
-  req.flash('success', 'You are logged out');
-  res.redirect('/login');
+// Register Proccess
+router.post('/updatepassword', function(req, res) {
+  const password = req.body.password;
+  const password2 = req.body.password2;
+  if (req.user) {
+
+    req.checkBody('password', 'Password is required').notEmpty();
+    req.checkBody('password2', 'Passwords do not match').equals(req.body.password);
+
+    let errors = req.validationErrors();
+
+    if (errors) {
+      res.render('account', {
+        title: 'GDP | Account update',
+        version: version,
+        errors: errors
+      })
+    } else {
+      bcrypt.genSalt(10, function (err, salt) {
+        bcrypt.hash(password, salt, function (err, hash) {
+          if (err) {
+            console.log(err);
+          }
+          // write to database
+          var vsql = "UPDATE user SET password='" + hash + "' WHERE id=" + req.user.id;
+          pool.query(vsql, function (error, rows, fields) {
+            if (error) {
+              if (debugon)
+                console.log('>>> Error: ' + error);
+            }
+          });
+          req.flash('success', 'Account update');
+          res.redirect('/users/account');
+        });
+      });
+    }
+  }
+  else {
+    req.flash('success', 'User logged out');
+    res.redirect('/users/login');
+
+  }
 });
+
+
+
 
 function makeid(length) {
   var text = "";
@@ -392,6 +439,7 @@ function makeid(length) {
 
   return text;
 }
+
 
 
 module.exports = router;
