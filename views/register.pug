@@ -47,21 +47,25 @@ block content
     form(method='POST', action='/register', onsubmit="validateCaptcha()")
       #form-group
         label Username:
-        input.form-control(name='username',type='text',autocomplete='username')
+        input#username.form-control(name='username',type='text',autocomplete='username')
         small#depositHelp.form-text.text-muted This can be Your email address, but maybe better to have an individual id, as this might come up in statistics on our site and visible to other game developers
       #form-group
+          label Displayname:
+          input#displayname.form-control(name='displayname', type='text')
+          small#depositHelp.form-text.text-muted This is the name others will see You in games. Use something cool!
+      #form-group
           label Email:
-          input.form-control(name='email', type='text')
+          input#email.form-control(name='email', type='text')
           small#depositHelp.form-text.text-muted We'll never share your email with anyone else. You will receive an email to confirm Your address and to finish registration.
       #form-group
-          label#indicator1 Password:
-          input.form-control(name='password',type='password', autocomplete='password', id='pass1' onkeyup='checkPass1(); return false;')
+          label Password:
+          input#password1.form-control(name='password',type='password', autocomplete='password', onkeyup='checkPass1(); return false;')
           small#depositHelp.form-text.text-muted Make it a secure one, as this allows You to get access to Your funds and game related assets.
       #form-group
-          label#indicator2 Confirm:
-          input.form-control(name='password2',type='password', id='pass2', onkeyup='checkPass2(); return false;')
+          label Confirm:
+          input#password2.form-control(name='password2',type='password', onkeyup='checkPass2(); return false;')
           label Your ATH acount
-          input.form-control(name='depositaddr',type='text')
+          input#depositaddr.form-control(name='depositaddr',type='text')
           small#depositHelp.form-text.text-muted Optional: If You do not have yet a Atheios blockchain account, keep this one empty. You can always change it at a later stage and we will provide an intermediate address in the meantime. If You want to generate Your own address now You can do i here: <a href='https://wallet.atheios.org' target='_blank'>Web wallet</a>
 
           img(src="images/1x1.gif" onload="createCaptcha()")

@@ -4,6 +4,8 @@ const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const {athGetAddress, athGetBalance, athdoWithdraw} = require('../ath');
 const Mail=require('../mail');
+const {miscValidation} = require('../misc');
+const { check } = require('express-validator');
 
 // Register Form
 router.get('/register', function(req, res){
@@ -11,11 +13,16 @@ router.get('/register', function(req, res){
 });
 
 // Register Proccess
-router.post('/register', function(req, res){
+router.post('/register', [
+  check('email', 'Email is not valid').isEmail(),
+  check('displayname', 'Displayname is required').notEmpty(),
+  check('username', 'Username is required').notEmpty(),
+  check('password', 'Password is required').notEmpty()
+],function(req, res){
   const email = req.body.email;
   const username = req.body.username;
+  const displayname = req.body.displayname;
   const password = req.body.password;
-  const password2 = req.body.password2;
   const depositaddr = req.body.depositaddr;
   // Some explaining here
   // The option field in the user database
@@ -23,23 +30,15 @@ router.post('/register', function(req, res){
   // bit 1
   // bit 2 User has asked for 10 ATH deposit <= This is currently switched off
   // bit 3 User has registered but is not yet confirmed
-
+  var option;
   if (req.body.newuser==="on")
-    var option=4+8;
+    option=4+8;
   else
-    var option=8;
+    option=8;
 
-  req.checkBody('email', 'Email is required').notEmpty();
-  req.checkBody('email', 'Email is not valid').isEmail();
-  req.checkBody('username', 'Username is required').notEmpty();
-  req.checkBody('password', 'Password is required').notEmpty();
-  req.checkBody('password2', 'Passwords do not match').equals(req.body.password);
 
-  let errors = req.validationErrors();
-  if(errors){
-    res.render('register', {
-      errors:errors
-    });
+  if (!miscValidation(req)) {
+    res.redirect('/register');
   } else {
     // Check if username is already taken
     var sql = "SELECT * FROM user WHERE email = '" + email + "'";
@@ -66,18 +65,8 @@ router.post('/register', function(req, res){
                       console.log(err);
                     }
 
-
-                    // write to database
-                    var date;
-                    date = new Date();
-                    date = date.getUTCFullYear() + '-' +
-                        ('00' + (date.getUTCMonth() + 1)).slice(-2) + '-' +
-                        ('00' + date.getUTCDate()).slice(-2) + ' ' +
-                        ('00' + date.getUTCHours()).slice(-2) + ':' +
-                        ('00' + date.getUTCMinutes()).slice(-2) + ':' +
-                        ('00' + date.getUTCSeconds()).slice(-2);
                     var rand = makeid(50);
-                    var vsql = "INSERT INTO user (username, email, password, depositaddr, athamount, logincnt, lastlogin, register, rand, options) VALUES ('" + username + "','" + email + "', '" + hash + "', '" + depositaddr + "', 0, 0,'" + date + "','" + date + "', '" + rand + "'," + option + ")";
+                    var vsql = "INSERT INTO user (username, displayname, email, password, depositaddr, athamount, logincnt, lastlogin, register, rand, options) VALUES ('" + username + "','" + displayname + "','" + email + "', '" + hash + "', '" + depositaddr + "', 0, 0,'" + pool.mysqlNow() + "','" + pool.mysqlNow() + "', '" + rand + "'," + option + ")";
                     console.log(vsql);
                     pool.query(vsql, function (error, rows, fields) {
                       if (error) {
@@ -180,25 +169,20 @@ router.get('/activate', function(req, res){
 
 
 // Register Proccess
-router.post('/update', function(req, res){
+router.post('/update', [
+  check('name', 'Name is required').notEmpty(),
+  check('email', 'Email is required').notEmpty(),
+  check('email', 'Email is not valid').isEmail()
+], function(req, res){
   if (req.user) {
     const name = req.body.name;
     const email = req.body.email;
     const athaddress = req.body.athaddress;
     const depositaddr = req.body.depositaddr;
 
-    req.checkBody('name', 'Name is required').notEmpty();
-    req.checkBody('email', 'Email is required').notEmpty();
-    req.checkBody('email', 'Email is not valid').isEmail();
 
-    let errors = req.validationErrors();
-
-    if (errors) {
-      res.render('account', {
-        title: 'GDP | Account update',
-        version: version,
-        errors: errors
-      });
+    if (!miscValidation(req)) {
+      res.redirect('/account');
     } else {
       var vsql = "UPDATE user SET user='" + name + "', email='" + email + "', depositaddr='" + depositaddr +"' WHERE id=" + req.user.id;
       console.log(vsql);
@@ -258,22 +242,16 @@ router.post('/preferences', function(req, res){
 
 
 // Register Proccess
-router.post('/updatepassword', function(req, res) {
+router.post('/updatepassword', [
+  check('password', 'Password is required').notEmpty(),
+  check('password2', 'Passwords is required').notEmpty
+],function(req, res) {
   const password = req.body.password;
   const password2 = req.body.password2;
+
   if (req.user) {
-
-    req.checkBody('password', 'Password is required').notEmpty();
-    req.checkBody('password2', 'Passwords do not match').equals(req.body.password);
-
-    let errors = req.validationErrors();
-
-    if (errors) {
-      res.render('account', {
-        title: 'GDP | Account update',
-        version: version,
-        errors: errors
-      })
+    if (!miscValidation(req)) {
+      res.redirect('/account');
     } else {
       bcrypt.genSalt(10, function (err, salt) {
         bcrypt.hash(password, salt, function (err, hash) {
@@ -384,22 +362,17 @@ router.post('/login', function(req, res, next){
 });
 
 // Register Proccess
-router.post('/updatepassword', function(req, res) {
+router.post('/updatepassword', [
+  check('password', 'Password is required').notEmpty(),
+  check('password2', 'Passwords do not match').notEmpty()
+], function(req, res) {
   const password = req.body.password;
   const password2 = req.body.password2;
   if (req.user) {
 
-    req.checkBody('password', 'Password is required').notEmpty();
-    req.checkBody('password2', 'Passwords do not match').equals(req.body.password);
 
-    let errors = req.validationErrors();
-
-    if (errors) {
-      res.render('account', {
-        title: 'GDP | Account update',
-        version: version,
-        errors: errors
-      })
+    if (!miscValidation(req)) {
+      res.redirect('/account');
     } else {
       bcrypt.genSalt(10, function (err, salt) {
         bcrypt.hash(password, salt, function (err, hash) {

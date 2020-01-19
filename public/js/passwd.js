@@ -1,7 +1,7 @@
 function checkPass1()
 {
-    var pass1 = document.getElementById('pass1');
-    var pass2 = document.getElementById('pass2');
+    var pass1 = document.getElementById('password1');
+    var pass2 = document.getElementById('password2');
     var message1 = document.getElementById('indicator1');
     var goodColor = "#66cc66";
     var badColor = "#ff6666";
@@ -20,13 +20,13 @@ function checkPass1()
 
 function checkPass2()
 {
-    var pass1 = document.getElementById('pass1');
-    var pass2 = document.getElementById('pass2');
+    var pass1 = document.getElementById('password1');
+    var pass2 = document.getElementById('password2');
     var message2 = document.getElementById('indicator2');
     var goodColor = "#66cc66";
     var badColor = "#ff6666";
 
-    if(pass1.value == pass2.value){
+    if(pass1.value === pass2.value){
         pass2.style.backgroundColor = goodColor;
         message2.style.color = goodColor;
         message2.innerHTML = "ok!"

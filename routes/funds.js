@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const Database=require('../database');
-const bcrypt = require('bcryptjs');
-const passport = require('passport');
-const {athGetAddress, athGetBalance, athdoWithdraw} = require('../ath');
+const {athGetBalance, athdoWithdraw} = require('../ath');
 const { check, validationResult } = require('express-validator');
 const logger = require("../logger");
+const {miscValidation} = require('../misc');
+
 
 const TX_FINISHED=1;
 const TX_ONGOING=2;
@@ -52,7 +51,7 @@ router.post('/funds/withdraw', [
     check('transferamount').isNumeric(),
     check('depositaddr').notEmpty()
 ], function(req, res){
-    if (!validation(req)) {
+    if (!miscValidation(req)) {
         res.redirect('/funds');
     } else {
         if (req.user) {
@@ -102,7 +101,7 @@ router.post('/funds/movetogaming',[
     check('transferamount').isNumeric(),
     check('hotamount').isNumeric()],
     function(req, res) {
-    if (!validation(req)) {
+    if (!miscValidation(req)) {
         res.redirect('/funds');
     } else {
         if (req.user) {
@@ -129,7 +128,7 @@ router.post('/funds/movetogaming',[
                             errstr = "Max transfer amount is " + (athamount - 0.00242002) + " ATH";
                         if (transferamount < 0)
                             errstr = "Transfer amount needs to be positive."
-                        if (errstr != "") {
+                        if (errstr) {
                             req.flash('danger', errstr);
                             res.redirect('/funds');
 
@@ -186,7 +185,7 @@ router.post('/funds/movetotransfer', [
     check('transferamount').isNumeric(),
     check('hotamount').isNumeric()],
     function(req, res){
-    if (!validation(req)) {
+    if (!miscValidation(req)) {
         res.redirect('/funds');
     } else {
 
@@ -213,8 +212,8 @@ router.post('/funds/movetotransfer', [
                         if (transferamount > hotamount - 0.00242002)
                             errstr = "Max transfer amount is " + (hotamount - 0.00242002) + " ATH";
                         if (transferamount < 0)
-                            errstr = "Transfer amount needs to be positive."
-                        if (errstr != "") {
+                            errstr = "Transfer amount needs to be positive.";
+                        if (errstr) {
                             req.flash('danger', errstr);
                             res.redirect('/funds');
 
@@ -262,29 +261,5 @@ router.post('/funds/movetotransfer', [
     }
 });
 
-function validation(req) {
-    var i;
-
-    const errorFormatter = ({location, msg, param, value, nestedErrors}) => {
-        // Build your resulting errors however you want! String, object, whatever - it works!
-        return `Error: ${msg} for ${param}`;
-    };
-
-    var errors = validationResult(req).formatWith(errorFormatter);
-    if (!errors.isEmpty()) {
-        var errorstr = "";
-        for (i = 0; i < errors.array().length; i++) {
-            errorstr += errors.array()[i];
-            if (i < errors.array().length - 1) {
-                errorstr += ", ";
-            }
-
-        }
-        logger.error("Error in validation: %", errorstr);
-        req.flash('danger', errorstr);
-        return(false);
-    }
-    return(true);
-}
 
 module.exports = router;

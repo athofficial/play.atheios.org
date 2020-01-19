@@ -131,19 +131,19 @@ block content
                 = rows.startdate
               td
                 if (rows.fromaddr===user.athaddr)
-                  a(href="https://explorer.atheios.org/address/" + rows.fromaddr) Transfer account
+                  a(href="https://explorer.atheios.org/address/" + rows.fromaddr, rel="noopener noreferrer", target="_blank") Transfer account
                 else if (rows.fromaddr === local)
-                  a(href="https://explorer.atheios.org/address/" + rows.fromaddr) Game account
+                  p Game account
                 else
-                  a(href="https://explorer.atheios.org/address/" + rows.fromaddr) Ext address
+                  a(href="https://explorer.atheios.org/address/" + rows.fromaddr, rel="noopener noreferrer", target="_blank") Ext address
 
               td
                 if (rows.toaddr === user.athaddr)
-                  a(href="https://explorer.atheios.org/address/" + rows.toaddr) Transfer account
+                  a(href="https://explorer.atheios.org/address/" + rows.toaddr, rel="noopener noreferrer", target="_blank") Transfer account
                 else if (rows.toaddr === local)
-                  a(href="https://explorer.atheios.org/address/" + rows.toaddr) Game account
+                  p Game account
                 else
-                  a(href="https://explorer.atheios.org/address/" + rows.toaddr) Ext address
+                  a(href="https://explorer.atheios.org/address/" + rows.toaddr, rel="noopener noreferrer", target="_blank") Ext address
 
               td
                 = rows.amount
@@ -153,7 +153,7 @@ block content
                 if (rows.status==2)
                   p Ongoing
               td
-                a(href="https://explorer.atheios.org/tx/" + rows.tx) TX link
+                a(href="https://explorer.atheios.org/tx/" + rows.tx, rel="noopener noreferrer", target="_blank") TX link
   script.
     function myFunction(inputvar) {
       var copyText = document.getElementById(inputvar);
