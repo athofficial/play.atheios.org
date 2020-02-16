@@ -3,7 +3,8 @@ const router = express.Router();
 const {athGetBalance, athdoWithdraw} = require('../ath');
 const { check, validationResult } = require('express-validator');
 const logger = require("../logger");
-const {miscValidation} = require('../misc');
+const {Misc_validation} = require('../misc');
+const Mail=require('../mail');
 
 
 const TX_FINISHED=1;
@@ -12,30 +13,43 @@ const TX_ONGOING=2;
 
 // Login Form
 router.get('/funds', function(req, res){
+    var confmail;
     if (req.user) {
 
         pool.queryathaddr(req.user.id, async (error, rows, fields) => {
 
             await athGetBalance(rows[0].athaddr, function (error, amount) {
-                var vsql = "SELECT *, DATE_FORMAT(startdate, \"%d/%m/%Y %H:%i:%s\") AS startdate FROM currencytransfer WHERE userid=" + req.user.id + " ORDER BY startdate DESC LIMIT 10";
-                pool.query(vsql, function (error, rows1, fields) {
-                    logger.info("rows1: %s", rows1.length);
-                    if (error) {
-                        if (debugon)
-                            console.log('>>> Error: ' + error);
-                        req.flash('danger', 'An error occured: ' + error);
-                        res.redirect('/');
-                    } else {
-                        res.render("funds", {
-                            title: 'Play | Fund management',
-                            version: version,
-                            amount: amount,
-                            user: req.user,
-                            log: rows1,
-                            local: ATHaddress
-                        });
-                    }
-                });
+                if (error || amount == null) {
+                    res.render("error", {
+                        title: 'Play | Fund management',
+                        version: version,
+                        message: "Atheios connection not working",
+                        error: error
+                    });
+                    confmail = new Mail();
+                    confmail.sendMail('play@atheios.org', "Atheios PLAY error (funds)", error + '\nDetails:\n' + error.stack);
+                } else {
+
+                    var vsql = "SELECT *, DATE_FORMAT(startdate, \"%d/%m/%Y %H:%i:%s\") AS startdate FROM currencytransfer WHERE userid=" + req.user.id + " ORDER BY startdate DESC LIMIT 10";
+                    pool.query(vsql, function (error, rows1, fields) {
+                        logger.info("rows1: %s", rows1.length);
+                        if (error) {
+                            if (debugon)
+                                console.log('>>> Error: ' + error);
+                            req.flash('danger', 'An error occured: ' + error);
+                            res.redirect('/');
+                        } else {
+                            res.render("funds", {
+                                title: 'Play | Fund management',
+                                version: version,
+                                amount: amount,
+                                user: req.user,
+                                log: rows1,
+                                local: ATHaddress
+                            });
+                        }
+                    });
+                }
             });
         });
     } else {
@@ -48,10 +62,10 @@ router.get('/funds', function(req, res){
 
 // Transfer from B to A account
 router.post('/funds/withdraw', [
-    check('transferamount').isNumeric(),
-    check('depositaddr').notEmpty()
+    check('transferamount').isNumeric().withMessage("Please check the transfer amount. The input should be numeric."),
+    check('depositaddr').notEmpty().withMessage("The depositaddress can't be empty.")
 ], function(req, res){
-    if (!miscValidation(req)) {
+    if (!Misc_validation(req)) {
         res.redirect('/funds');
     } else {
         if (req.user) {
@@ -101,7 +115,7 @@ router.post('/funds/movetogaming',[
     check('transferamount').isNumeric(),
     check('hotamount').isNumeric()],
     function(req, res) {
-    if (!miscValidation(req)) {
+    if (!Misc_validation(req)) {
         res.redirect('/funds');
     } else {
         if (req.user) {
@@ -185,7 +199,7 @@ router.post('/funds/movetotransfer', [
     check('transferamount').isNumeric(),
     check('hotamount').isNumeric()],
     function(req, res){
-    if (!miscValidation(req)) {
+    if (!Misc_validation(req)) {
         res.redirect('/funds');
     } else {
 

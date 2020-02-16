@@ -14,7 +14,7 @@ const passport = require('passport');
 
 // Define the globals
 global.debugon=true;
-global.version="0.0.9";
+global.version="0.1.0";
 
 // Init database
 if (global.config.development) {

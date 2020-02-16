@@ -1,6 +1,11 @@
 extends layout
 
 block content
-  h1= message
-  h2= error.status
-  pre #{error.stack}
+  header.registerhead.d-flex
+    .container.align-bottom
+      h1.mb-1.text-secondary= message
+  .overlay
+  .container
+
+    h2= error.status
+

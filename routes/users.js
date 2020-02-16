@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const {athGetAddress, athGetBalance, athdoWithdraw} = require('../ath');
 const Mail=require('../mail');
-const {miscValidation} = require('../misc');
+const {Misc_validation} = require('../misc');
 const { check } = require('express-validator');
 
 // Register Form
@@ -37,7 +37,7 @@ router.post('/register', [
     option=8;
 
 
-  if (!miscValidation(req)) {
+  if (!Misc_validation(req)) {
     res.redirect('/register');
   } else {
     // Check if username is already taken
@@ -181,7 +181,7 @@ router.post('/update', [
     const depositaddr = req.body.depositaddr;
 
 
-    if (!miscValidation(req)) {
+    if (!Misc_validation(req)) {
       res.redirect('/account');
     } else {
       var vsql = "UPDATE user SET user='" + name + "', email='" + email + "', depositaddr='" + depositaddr +"' WHERE id=" + req.user.id;
@@ -250,7 +250,7 @@ router.post('/updatepassword', [
   const password2 = req.body.password2;
 
   if (req.user) {
-    if (!miscValidation(req)) {
+    if (!Misc_validation(req)) {
       res.redirect('/account');
     } else {
       bcrypt.genSalt(10, function (err, salt) {
@@ -304,6 +304,7 @@ router.get('/register', function(req, res){
 router.get('/account', function(req, res){
   var darkmode;
   var keyprefs;
+  var confmail;
 
   if (req.user) {
     var vsql="SELECT * FROM user WHERE id="+req.user.id;
@@ -323,10 +324,21 @@ router.get('/account', function(req, res){
       else
         keyprefs=false;
       athGetBalance(rows[0].athaddr, async(error,amount) => {
-        res.render("account", {
-          title: 'GDP | Account',
-          version: version
-        });
+        if (error || amount == null) {
+          res.render("error", {
+            title: 'GDP | Account',
+            version: version,
+            message: "Atheios connection not working",
+            error: error
+          });
+          confmail = new Mail();
+          confmail.sendMail('play@atheios.org', "Atheios PLAY error", error + '\nDetails:\n' + error.stack);
+        } else {
+          res.render("account", {
+            title: 'GDP | Account',
+            version: version
+          });
+        }
       });
     });
   } else {
@@ -371,7 +383,7 @@ router.post('/updatepassword', [
   if (req.user) {
 
 
-    if (!miscValidation(req)) {
+    if (!Misc_validation(req)) {
       res.redirect('/account');
     } else {
       bcrypt.genSalt(10, function (err, salt) {

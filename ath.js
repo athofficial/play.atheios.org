@@ -70,15 +70,15 @@ exports.athGetBalance = function(fromaddress, cb) {
 
     web3.eth.getBalance(fromaddress, function (error, weiamount) {
         if (error) {
-            // Any operations on the data retrieved from the query here.
-            if (debugon)
-                console.log('>>> DEBUG Address to get balance: ', fromaddress);
+             if (debugon)
+                console.log('Error in athGetBalance: ', error);
             cb(error, null);
+        } else {
+            if (debugon)
+                console.log('>>> DEBUG Amount in Wei', weiamount);
+            athamount = web3.utils.fromWei(weiamount.toString(), 'ether');
+            cb(0, athamount);
         }
-        if (debugon)
-            console.log('>>> DEBUG Amount in Wei', weiamount);
-        athamount = web3.utils.fromWei(weiamount, 'ether');
-        cb(0, athamount);
     });
 }
 
