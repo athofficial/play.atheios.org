@@ -1,6 +1,8 @@
+const logger = require("./logger");
+
 const { validationResult } = require('express-validator');
 
-exports.Misc_validation=function(req) {
+exports.MISC_validation=function(req) {
     var i;
 
     const errorFormatter = ({location, msg, param, value, nestedErrors}) => {

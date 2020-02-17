@@ -1,8 +1,6 @@
 // Establishing connection to the database
 var mysql = require('mysql');
 var util= require('util');
-console.log("Reading config data");
-
 
 class Database {
     constructor() {
@@ -136,6 +134,10 @@ class Database {
             }
         });
     }
+    escape(arg) {
+        return(this.connection.escape(arg));
+    }
+
 }
 
 module.exports = Database;

@@ -3,7 +3,7 @@ const router = express.Router();
 const {athGetBalance, athdoWithdraw} = require('../ath');
 const { check, validationResult } = require('express-validator');
 const logger = require("../logger");
-const {Misc_validation} = require('../misc');
+const {MISC_validation} = require('../misc');
 const Mail=require('../mail');
 
 
@@ -65,7 +65,7 @@ router.post('/funds/withdraw', [
     check('transferamount').isNumeric().withMessage("Please check the transfer amount. The input should be numeric."),
     check('depositaddr').notEmpty().withMessage("The depositaddress can't be empty.")
 ], function(req, res){
-    if (!Misc_validation(req)) {
+    if (!MISC_validation(req)) {
         res.redirect('/funds');
     } else {
         if (req.user) {
@@ -115,7 +115,7 @@ router.post('/funds/movetogaming',[
     check('transferamount').isNumeric(),
     check('hotamount').isNumeric()],
     function(req, res) {
-    if (!Misc_validation(req)) {
+    if (!MISC_validation(req)) {
         res.redirect('/funds');
     } else {
         if (req.user) {
@@ -199,7 +199,7 @@ router.post('/funds/movetotransfer', [
     check('transferamount').isNumeric(),
     check('hotamount').isNumeric()],
     function(req, res){
-    if (!Misc_validation(req)) {
+    if (!MISC_validation(req)) {
         res.redirect('/funds');
     } else {
 
