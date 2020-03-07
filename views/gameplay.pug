@@ -1,0 +1,25 @@
+extends layout
+
+block content
+    header.registerhead.d-flex
+        .container.align-bottom
+            h1.mb-1.text-secondary Game play for #{user.username}
+    .container
+        h3 Statistics
+        .container
+            p The 10 recent events with regards to Your account
+                table.table
+                    tr
+                        th Date
+                        th Game
+                        th Wage
+                    tbody
+                        each rows in log
+                            tr
+                            td
+                                = rows.enddate
+                            td
+                                = rows.asset_name
+
+                            td
+                                = rows.amount

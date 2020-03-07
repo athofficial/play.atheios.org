@@ -42,7 +42,7 @@ router.post('/register', [
     res.redirect('/register');
   } else {
     // Check if username is already taken
-    var sql = "SELECT * FROM user WHERE email = '" + email + "'";
+    var sql = "SELECT * FROM user WHERE email = " + pool.escape(email);
     logger.info("SQL: %s", sql);
     pool.query(sql, function (error, rows, fields) {
       if (error) {
@@ -51,7 +51,7 @@ router.post('/register', [
         throw error;
       } else {
         if (rows.length == 0) {
-          var sql = "SELECT * FROM user WHERE username = '" + username + "'";
+          var sql = "SELECT * FROM user WHERE username = " + pool.escape(username);
           logger.info("SQL: %s", sql);
           pool.query(sql, function (error, rows, fields) {
             if (error) {
@@ -66,7 +66,7 @@ router.post('/register', [
                       logger.error(err);
                     }
                     var rand = makeid(50);
-                    var vsql = "INSERT INTO user (username, displayname, email, password, depositaddr, athamount, logincnt, lastlogin, register, rand, options) VALUES ('" + username + "','" + displayname + "','" + email + "', '" + hash + "', '" + depositaddr + "', 0, 0,'" + pool.mysqlNow() + "','" + pool.mysqlNow() + "', '" + rand + "'," + option + ")";
+                    var vsql = "INSERT INTO user (username, displayname, email, password, depositaddr, athamount, logincnt, lastlogin, register, rand, options) VALUES (" + pool.escape(username) + "," + pool.escape(displayname) + "," + pool.escape(email) + ", '" + hash + "', " + pool.escape(depositaddr) + ", 0, 0,'" + pool.mysqlNow() + "','" + pool.mysqlNow() + "', '" + rand + "'," + option + ")";
                     logger.info("SQL: %s", vsql);
                     pool.query(vsql, function (error, rows, fields) {
                       if (error) {
@@ -127,38 +127,38 @@ router.get('/activate', function(req, res){
         var athamount = 0;
         if (rows[0].options & 4) {
           athamount = 10;
-          athdoWithdraw(NEWUSERFUNDaddress, ATHaddress, athamount, async (error, tx) => {
-            if (error) {
-              req.flash('danger', 'An error occured: ' + error);
-              res.redirect('/manage');
-            } else {
-              if (debugon) {
-                logger.info(">>>> DEBUG NEWUSER fund transfer, 10ATH: %s", tx);
-              }
-              pool.logging(rows[0].id, athamount.toString() + " ATH are credited as new user bonus to Your gamedev account.");
-            }
-
-          });
-        } else
-          athamount = 0;
+        }
 
         athGetAddress(async (error, athaddress) => {
           if (error) {
             if (debugon)
               logger.error(' >>> DEBUG athGetAddress failed: %s', error);
           } else {
-            var vsql = "UPDATE user SET athaddr='" + athaddress + "', athamount=" + athamount + ", options=" + newoption + " WHERE rand='" + req.query.id+"'";
-            logger.info("SQL: %s", vsql);
-            pool.query(vsql, function (error, rows, fields) {
+            athdoWithdraw(config.NEWUSERFUNDADDRESS, athaddress, athamount, async (error, tx) => {
               if (error) {
-                if (debugon)
-                  logger.error('>>> Error: %s', error);
+                req.flash('danger', 'An error occured: ' + error);
+                res.redirect('/manage');
+              } else {
+                if (debugon) {
+                  logger.info(">>>> DEBUG NEWUSER fund transfer, 10ATH: %s", tx);
+                }
+                var vsql = "UPDATE user SET athaddr='" + athaddress + "', athamount=0, options=" + newoption + " WHERE rand='" + req.query.id+"'";
+                logger.info("SQL: %s", vsql);
+                pool.query(vsql, function (error, rows, fields) {
+                  if (error) {
+                    if (debugon)
+                      logger.error('>>> Error: %s', error);
+                  }
+                  else {
+                    req.flash('success', 'Account is activated');
+                    res.redirect('/login');
+                  }
+                });
+
               }
-              else {
-                req.flash('success', 'Account is activated');
-                res.redirect('/login');
-              }
+
             });
+
           }
 
         });

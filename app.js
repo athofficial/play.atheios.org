@@ -14,7 +14,7 @@ const passport = require('passport');
 
 // Define the globals
 global.debugon=true;
-global.version="0.1.0";
+global.version="0.1.1";
 
 // Init database
 if (global.config.development) {
@@ -38,6 +38,7 @@ let gamesRouter = require('./routes/game');
 let contactRouter = require('./routes/contact');
 let funds = require('./routes/funds');
 let statsrouter = require('./routes/stats');
+let gameplayrouter = require('./routes/gameplay');
 
 var app = express();
 
@@ -98,6 +99,7 @@ app.use('/', users);
 app.use('/', gamesRouter);
 app.use('/', contactRouter);
 app.use('/', statsrouter);
+app.use('/', gameplayrouter);
 
 app.use('/', funds);
 
