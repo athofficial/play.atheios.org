@@ -37,17 +37,17 @@ block content
             .input-group
               .input-group-prepend
                 span#inputGroupPrepend.input-group-text Transfer account, ATH
-              input#validationATHaddr.form-control(type='text' name='athamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='', readonly, value=amount)
+              input#athamount.form-control(type='text' name='athamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='', readonly, value=amount)
             p
             .input-group
               .input-group-prepend
                 span#inputGroupPrepend.input-group-text Game account ATH
-              input#validationATH.form-control(type='text', name='hotamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='', readonly, value=user.athamount)
+              input#hotamount.form-control(type='text', name='hotamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='', readonly, value=user.athamount)
             p
             .input-group
               .input-group-prepend
                 span#inputGroupPrepend.input-group-text ATH to transfer
-                input#validationATH.form-control(type='text', name='transferamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='')
+                input#transferamount.form-control(type='text', name='transferamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='')
             small#validationATHHelp.form-text.text-muted
               | Current transaction fee: 0.00042002 ATH. Amount needs to be atleast reduced with that.
           p
@@ -161,3 +161,13 @@ block content
       copyText.setSelectionRange(0, 99999)
       document.execCommand("copy");
     }
+    function myFunction() {
+      var copyText = document.getElementById("myInput");
+      copyText.select();
+      copyText.setSelectionRange(0, 99999);
+      document.execCommand("copy");
+
+      var tooltip = document.getElementById("myTooltip");
+      tooltip.innerHTML = "Copied: " + copyText.value;
+    }
+

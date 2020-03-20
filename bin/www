@@ -13,8 +13,8 @@ const filename = path.join(process.cwd()+'/Logs/', 'created-logfile.log');
 //
 // Remove the file, ignoring any errors
 //
-try { fs.unlinkSync(filename); }
-catch (ex) { }
+// try { fs.unlinkSync(filename); }
+// catch (ex) { }
 
 var logger = require("../logger");
 logger.info("Logging initiated");

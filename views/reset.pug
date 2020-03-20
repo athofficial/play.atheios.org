@@ -1,0 +1,27 @@
+extends layout
+
+block content
+    header.registerhead.d-flex
+        .container.align-bottom
+            h1.mb-1.text-secondary So You forgot something...
+    .overlay
+    .container
+        .row
+            .col-sm
+                h2 Remember username
+                form(method='POST', action='/resendusername')
+                    #form-group
+                        label Email:
+                        input.form-control(name='email',type='text', autofocus, autocomplete='email')
+                    br
+                    input.btn.btn-primary(type='submit',value='Reset')
+
+            .col-sm
+                h2 Reset password
+                form(method='POST', action='/resetpassword')
+                    #form-group
+                        label Username:
+                        input.form-control(name='username',type='text', autofocus, autocomplete='username')
+                    br
+                    input.btn.btn-primary(type='submit',value='Reset')
+

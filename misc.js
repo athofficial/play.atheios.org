@@ -20,7 +20,7 @@ exports.MISC_validation=function(req) {
             }
 
         }
-        logger.error("Error in validation: %", errorstr);
+        logger.error("Error in validation: %s", errorstr);
         req.flash('danger', errorstr);
         return(false);
     }

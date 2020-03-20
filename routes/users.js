@@ -10,15 +10,27 @@ const { check } = require('express-validator');
 
 // Register Form
 router.get('/register', function(req, res){
-  res.render('register');
+  res.render('register', {
+    title:'Portal | Register',
+    version: version
+  });
 });
+
+// Register Form
+router.get('/reset', function(req, res){
+  res.render('reset', {
+    title:'Portal | Reset',
+    version: version
+  });
+});
+
 
 // Register Proccess
 router.post('/register', [
-  check('email', 'Email is not valid').isEmail(),
-  check('displayname', 'Displayname is required').notEmpty(),
-  check('username', 'Username is required').notEmpty(),
-  check('password', 'Password is required').notEmpty()
+  check('email', 'Email is not valid').isEmail().isLength({min:3, max:255}).withMessage('The email should be between 3 and 255 char long'),
+  check('displayname', 'Displayname is required').notEmpty().isLength({min:3, max:20}).withMessage('The display name should be between 3 and 20 char long'),
+  check('username', 'Username is required').notEmpty().isLength({min:3, max:20}).withMessage('The user name should be between 3 and 20 char long'),
+  check('password', 'Password is required').notEmpty().isLength({min:3, max:255}).withMessage('The password should be between 3 and 20 char long')
 ],function(req, res){
   const email = req.body.email;
   const username = req.body.username;
@@ -29,7 +41,7 @@ router.post('/register', [
   // The option field in the user database
   // bit 0
   // bit 1
-  // bit 2 User has asked for 10 ATH deposit <= This is currently switched off
+  // bit 2 User has asked for 10 ATH deposit
   // bit 3 User has registered but is not yet confirmed
   var option;
   if (req.body.newuser==="on")
@@ -123,6 +135,7 @@ router.get('/activate', function(req, res){
         req.flash('danger', 'Account already activated.');
         res.redirect('/register');
       } else {
+        // clear the activation pending flag
         var newoption = rows[0].options & 247;
         var athamount = 0;
         if (rows[0].options & 4) {
@@ -134,30 +147,47 @@ router.get('/activate', function(req, res){
             if (debugon)
               logger.error(' >>> DEBUG athGetAddress failed: %s', error);
           } else {
-            athdoWithdraw(config.NEWUSERFUNDADDRESS, athaddress, athamount, async (error, tx) => {
-              if (error) {
-                req.flash('danger', 'An error occured: ' + error);
-                res.redirect('/manage');
-              } else {
-                if (debugon) {
-                  logger.info(">>>> DEBUG NEWUSER fund transfer, 10ATH: %s", tx);
+            // If this is a new account and it has been requested to get 10 ATH then we move the 10ATH
+            // to the playpot address and we add 10 ATH to the users hot address
+            if (athamount>0) {
+              athdoWithdraw(config.NEWUSERFUNDADDRESS, config.ATHADDRESS, athamount, async (error, tx) => {
+                if (error) {
+                  req.flash('danger', 'An error occured: ' + error);
+                  res.redirect('/manage');
+                } else {
+                  if (debugon) {
+                    logger.info(">>>> DEBUG NEWUSER fund transfer, 10ATH: %s", tx);
+                  }
+                  var vsql = "UPDATE user SET athaddr='" + athaddress + "', athamount="+ athamount +", options=" + newoption + " WHERE rand='" + req.query.id + "'";
+                  logger.info("SQL: %s", vsql);
+                  pool.query(vsql, function (error, rows, fields) {
+                    if (error) {
+                      if (debugon)
+                        logger.error('>>> Error: %s', error);
+                    } else {
+                      req.flash('success', 'Account is activated');
+                      res.redirect('/login');
+                    }
+                  });
+
                 }
-                var vsql = "UPDATE user SET athaddr='" + athaddress + "', athamount=0, options=" + newoption + " WHERE rand='" + req.query.id+"'";
-                logger.info("SQL: %s", vsql);
-                pool.query(vsql, function (error, rows, fields) {
-                  if (error) {
-                    if (debugon)
-                      logger.error('>>> Error: %s', error);
-                  }
-                  else {
-                    req.flash('success', 'Account is activated');
-                    res.redirect('/login');
-                  }
-                });
 
-              }
+              });
+            } else {
+              // In no money needs to be moved and we activate the account
+              var vsql = "UPDATE user SET athaddr='" + athaddress + "', athamount=0, options=" + newoption + " WHERE rand='" + req.query.id + "'";
+              logger.info("SQL: %s", vsql);
+              pool.query(vsql, function (error, rows, fields) {
+                if (error) {
+                  if (debugon)
+                    logger.error('>>> Error: %s', error);
+                } else {
+                  req.flash('success', 'Account is activated');
+                  res.redirect('/login');
+                }
+              });
 
-            });
+            }
 
           }
 
@@ -240,6 +270,90 @@ router.post('/preferences', function(req, res){
   }
 });
 
+// Reset password Process
+router.post('/resendusername', [
+  check('email').isEmail(),
+  check('email').notEmpty()
+],function(req, res, next) {
+  const email = req.body.email;
+  if (!MISC_validation(req)) {
+    res.redirect('/login');
+  } else {
+
+    var sql = "SELECT * FROM user WHERE email = " + pool.escape(email);
+    pool.query(sql, function (error, rows, fields) {
+      if (error) {
+        if (debugon)
+          logger.error('Error: %s', error);
+        throw error;
+      }
+      if (rows.length == 1) {
+        if ((rows[0].options & 8) == 1) {
+          req.flash('danger', 'You try to query an account which is not yet activated.');
+          res.redirect('/login');
+        } else {
+
+          confmail = new Mail();
+          confmail.sendMail(rows[0].email, "Atheios game developer account", 'You have requested You username from ' + config.httphost + '.\nYour username is: ' + rows[0].name + ' .');
+        }
+
+
+        req.flash('danger', 'We sent Your login name to Your email address.');
+        res.redirect('/login');
+      }
+    });
+  }
+});
+
+// Register Proccess
+router.post('/resettedpassword', [
+  check('password').notEmpty(),
+  check('password2').notEmpty()
+],function(req, res) {
+  const password = req.body.password;
+  const password2 = req.body.password2;
+
+  if (password === password2) {
+    // Check if resetcode is the one we sent
+    var sql = "SELECT * FROM user WHERE reset =" + pool.escape(req.body.resetcode);
+    logger.info("SQL: %s", sql);
+    pool.query(sql, function (error, rows, fields) {
+      if (error) {
+        if (debugon)
+          logger.error('Error: %s', error);
+        throw error;
+      }
+      if (rows.length == 1) {
+        bcrypt.genSalt(10, function (err, salt) {
+          bcrypt.hash(password, salt, function (err, hash) {
+            if (err) {
+              logger.error("BCRyPT error: %s", err);
+            }
+            // write to database
+            var vsql = "UPDATE user SET password='" + hash + "' WHERE id=" + rows[0].id;
+            logger.info("SQL: %s", vsql);
+            pool.query(vsql, function (error, rows, fields) {
+              if (error) {
+                if (debugon)
+                  logger.error('Error: %s', error);
+                throw error;
+              }
+              req.flash('success', 'Account update');
+              res.redirect('/account');
+
+            });
+          });
+        });
+      } else {
+        req.flash(danger, 'Reset code is not matching');
+        res.redirect('/resetpassword');
+      }
+    });
+  } else {
+    req.flash(danger, 'Passwords are not alike! Please retype.');
+    res.redirect('/resetpassword');
+  }
+});
 
 
 // Register Proccess
