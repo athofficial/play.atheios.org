@@ -5,16 +5,18 @@ var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+var morganlogger = require('morgan');
 const bodyParser = require('body-parser');
 const expressValidator = require('express-validator');
 const flash = require('connect-flash');
 const session = require('express-session');
 const passport = require('passport');
+var logger = require("./logger");
 
 // Define the globals
 global.debugon=true;
-global.version="0.1.1";
+global.version="0.1.2";
+
 
 // Init database
 if (global.config.development) {
@@ -34,7 +36,6 @@ global.ATHaddress=global.config.ATHADDRESS;
 let indexRouter = require('./routes/index');
 let whatsnew = require('./routes/whatsnew');
 let users = require('./routes/users');
-let gamesRouter = require('./routes/game');
 let contactRouter = require('./routes/contact');
 let funds = require('./routes/funds');
 let statsrouter = require('./routes/stats');
@@ -85,8 +86,11 @@ app.get('*', function(req, res, next){
   next();
 });
 
+app.use( (req, res, done) => {
+  logger.info("#server.app: URL: %s", req.originalUrl);
+  done();
+});
 
-app.use(logger('dev'));
 app.use(express.json());
 app.set('json spaces', 2)
 app.use(express.urlencoded({ extended: false }));
@@ -96,7 +100,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/', whatsnew);
 app.use('/', users);
-app.use('/', gamesRouter);
 app.use('/', contactRouter);
 app.use('/', statsrouter);
 app.use('/', gameplayrouter);

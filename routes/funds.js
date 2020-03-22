@@ -31,11 +31,10 @@ router.get('/funds', function(req, res){
                 } else {
 
                     var vsql = "SELECT *, DATE_FORMAT(startdate, \"%d/%m/%Y %H:%i:%s\") AS startdate FROM currencytransfer WHERE userid=" + req.user.id + " ORDER BY startdate DESC LIMIT 10";
+                    logger.info("#server.funds.get.funds: SQL: %s", vsql);
                     pool.query(vsql, function (error, rows1, fields) {
-                        logger.info("rows1: %s", rows1.length);
-                        if (error) {
-                            if (debugon)
-                                console.log('>>> Error: ' + error);
+                       if (error) {
+                            logger.error("#server.funds.get.funds: Error: %s",error);
                             req.flash('danger', 'An error occured: ' + error);
                             res.redirect('/');
                         } else {
@@ -72,6 +71,7 @@ router.post('/funds/withdraw', [
             // Lets firs check if the user is already doing a transaction on the blockchain
             pool.queryuser(req.user.id, function (error, rows) {
                 if (error) {
+                    logger.error("#server.funds.post.funds.withdraw: Error: %s",error);
                     req.flash('danger', 'Please logout and in again');
                     res.redirect('/login');
                 } else {
@@ -84,20 +84,32 @@ router.post('/funds/withdraw', [
                         const amount = req.body.transferamount;
                         const depositaddr = req.body.depositaddr;
                         pool.queryathaddr(req.user.id, async (error, rows, fields) => {
-                            athdoWithdraw(rows[0].athaddr, depositaddr, amount, async (errors, tx) => {
-                                var vsql = "INSERT INTO currencytransfer (userid, amount,fromaddr, toaddr, startdate, enddate, status, tx) VALUES ('" + req.user.id + "','" + amount + "', '" + req.user.athaddr + "', '" + depositaddr + "','" + pool.mysqlNow() + "','" + pool.mysqlNow() + "'," + TX_FINISHED + ",'"+ tx+"')";
-                                logger.info("SQL: %s",vsql);
-                                pool.query(vsql, function (error, rows, fields) {
+                            if (error) {
+                                logger.error("#server.funds.post.funds.withdraw: Error: %s",error);
+                                req.flash('danger', 'An error occured: ' + error);
+                                res.redirect('/funds');
+                            } else {
+                                athdoWithdraw(rows[0].athaddr, depositaddr, amount, async (error, tx) => {
                                     if (error) {
-                                        logger.error('>>> Error: %s' + error);
+                                        logger.error("#server.funds.post.funds.withdraw: Error: %s",error);
                                         req.flash('danger', 'An error occured: ' + error);
                                         res.redirect('/funds');
                                     } else {
-                                        req.flash('success', 'Funds are withdrawn. It might take a minute to let the blockchain to settle it.');
-                                        res.redirect('/funds');
+                                        var vsql = "INSERT INTO currencytransfer (userid, amount,fromaddr, toaddr, startdate, enddate, status, tx) VALUES ('" + req.user.id + "','" + amount + "', '" + req.user.athaddr + "', '" + depositaddr + "','" + pool.mysqlNow() + "','" + pool.mysqlNow() + "'," + TX_FINISHED + ",'" + tx + "')";
+                                        logger.info("#server.funds.post.funds.withdraw: SQL: %s", vsql);
+                                        pool.query(vsql, function (error, rows, fields) {
+                                            if (error) {
+                                                logger.error("#server.funds.post.funds.withdraw: Error: %s", error);
+                                                req.flash('danger', 'An error occured: ' + error);
+                                                res.redirect('/funds');
+                                            } else {
+                                                req.flash('success', 'Funds are withdrawn. It might take a minute to let the blockchain to settle it.');
+                                                res.redirect('/funds');
+                                            }
+                                        });
                                     }
                                 });
-                            });
+                            }
                         });
                     }
                 }
@@ -119,11 +131,10 @@ router.post('/funds/movetogaming',[
         res.redirect('/funds');
     } else {
         if (req.user) {
-
-
             // Lets firs check if the user is already doing a transaction on the blockchain
             pool.queryuser(req.user.id, function (error, rows) {
                 if (error) {
+                    logger.error("#server.funds.post.funds.movetogaming: Error: %s", error);
                     req.flash('danger', 'Please logout and in again');
                     res.redirect('/login');
                 } else {
@@ -135,7 +146,6 @@ router.post('/funds/movetogaming',[
                         const athamount = req.body.athamount;
                         const hotamount = req.body.hotamount;
                         var transferamount = req.body.transferamount;
-
 
                         errstr = "";
                         if (transferamount > athamount - 0.00242002)
@@ -150,23 +160,23 @@ router.post('/funds/movetogaming',[
                             pool.queryathaddr(req.user.id, async (error, rows, fields) => {
                                 athdoWithdraw(rows[0].athaddr, ATHaddress, transferamount, async (error, tx) => {
                                     if (error) {
+                                        logger.error("#server.funds.post.funds.movetogaming: Error: %s", error);
                                         req.flash('danger', 'An error occured: ' + error);
                                         res.redirect('/');
-
                                     } else {
                                         var vsql = "UPDATE user SET athamount=athamount+" + transferamount.toString() + ", blockchaintransact='" + pool.mysqlNow() + "' WHERE id=" + req.user.id;
+                                        logger.info("#server.funds.post.funds.movetogaming: SQL: %s", vsql);
                                         pool.query(vsql, function (error, rows1, fields) {
                                             if (error) {
-                                                if (debugon)
-                                                    console.log('>>> Error: ' + error);
+                                                logger.error("#server.funds.post.funds.movetogaming: Error: %s", error);
                                                 req.flash('danger', 'An error occured: ' + error);
                                                 res.redirect('/');
                                             } else {
                                                 var vsql = "INSERT INTO currencytransfer (userid, amount,fromaddr, toaddr, startdate, enddate, status, tx) VALUES ('" + req.user.id + "','" + transferamount + "', '" + req.user.athaddr + "', '" + ATHaddress + "','" + pool.mysqlNow() + "','" + pool.mysqlNow() + "'," + TX_FINISHED + ",'" + tx + "')";
-                                                logger.info("SQL: %s", vsql);
+                                                logger.info("#server.funds.post.funds.movetogaming: SQL: %s", vsql);
                                                 pool.query(vsql, function (error, rows, fields) {
                                                     if (error) {
-                                                        logger.error('>>> Error: %s' + error);
+                                                        logger.error("#server.funds.post.funds.movetogaming: Error: %s", error);
                                                         req.flash('danger', 'An error occured: ' + error);
                                                         res.redirect('/');
                                                     } else {
@@ -207,6 +217,7 @@ router.post('/funds/movetotransfer', [
             // Lets firs check if the user is already doing a transaction on the blockchain
             pool.queryuser(req.user.id, function (error, rows) {
                 if (error) {
+                    logger.error("#server.funds.post.funds.movetotransfer: Error: %s", error);
                     req.flash('success', 'Please logout and in again');
                     res.redirect('/login');
                 } else {
@@ -216,53 +227,63 @@ router.post('/funds/movetotransfer', [
                         res.redirect('/funds');
 
                     } else {
-
-                        const athamount = req.body.athamount;
-                        const hotamount = req.body.hotamount;
-                        var transferamount = req.body.transferamount;
-                        const depositaddr = req.body.depositaddr;
-
-                        errstr = "";
-                        if (transferamount > hotamount - 0.00242002)
-                            errstr = "Max transfer amount is " + (hotamount - 0.00242002) + " ATH";
-                        if (transferamount < 0)
-                            errstr = "Transfer amount needs to be positive.";
-                        if (errstr) {
-                            req.flash('danger', errstr);
+                        if (pool.mysqlSecElapsed(rows[0].blockchaintransact) < 604800) {
+                            // We have a problem, too fast transaction
+                            req.flash('danger', 'You cannot transfer funds from Your hot account for a week from registration. Seconds left: '+ (604800 - pool.mysqlSecElapsed(rows[0].blockchaintransact)));
                             res.redirect('/funds');
 
                         } else {
-                            transferamount = Number(transferamount) + 0.00242002;
-                            pool.queryathaddr(req.user.id, async (error, rows, fields) => {
-                                if (debugon) {
-                                    logger.info('>>> DEBUG (fn=movetoathblockchain) transferamount=%d', transferamount);
-                                }
 
-                                await athdoWithdraw(ATHaddress, rows[0].athaddr, transferamount, async (error, tx) => {
+                            const athamount = req.body.athamount;
+                            const hotamount = req.body.hotamount;
+                            var transferamount = req.body.transferamount;
+                            const depositaddr = req.body.depositaddr;
+
+                            errstr = "";
+                            if (transferamount > hotamount - 0.00242002)
+                                errstr = "Max transfer amount is " + (hotamount - 0.00242002) + " ATH";
+                            if (transferamount < 0)
+                                errstr = "Transfer amount needs to be positive.";
+                            if (errstr) {
+                                req.flash('danger', errstr);
+                                res.redirect('/funds');
+
+                            } else {
+                                transferamount = Number(transferamount) + 0.00242002;
+                                pool.queryathaddr(req.user.id, async (error, rows, fields) => {
                                     if (error) {
-                                        req.flash('danger', 'An error occured: ' + error);
-                                        res.redirect('/');
-
+                                        logger.error("#server.funds.post.funds.movetotransfer: Error: %s", error);
+                                        req.flash('success', 'Please logout and in again');
+                                        res.redirect('/login');
                                     } else {
-                                        var vsql = "UPDATE user SET athamount=athamount-'" + transferamount.toString() + "' WHERE id=" + req.user.id;
-                                        pool.query(vsql, function (error, rows1, fields) {
-                                            var vsql = "INSERT INTO currencytransfer (userid, amount,fromaddr, toaddr, startdate, enddate, status, tx) VALUES ('" + req.user.id + "','" + transferamount + "', '" + ATHaddress + "', '" + req.user.athaddr + "','" + pool.mysqlNow() + "','" + pool.mysqlNow() + "'," + TX_FINISHED + ",'" + tx + "')";
-                                            logger.info("SQL: %s", vsql);
-                                            pool.query(vsql, function (error, rows, fields) {
-                                                if (error) {
-                                                    logger.error('>>> Error: %s' + error);
-                                                    req.flash('danger', 'An error occured: ' + error);
-                                                    res.redirect('/');
-                                                } else {
-                                                    req.flash('success', 'Funds are withdrawn. It might take a minute to let the blockchain to settle it.');
-                                                    res.redirect('/funds');
-                                                }
-                                            });
+                                        logger.info('#server.funds.post.funds.movetotransfer: transferamount=%d', transferamount);
+                                        await athdoWithdraw(ATHaddress, rows[0].athaddr, transferamount, async (error, tx) => {
+                                            if (error) {
+                                                logger.error("#server.funds.post.funds.movetotransfer: Error: %s", error);
+                                                req.flash('danger', 'An error occured: ' + error);
+                                                res.redirect('/');
+                                            } else {
+                                                var vsql = "UPDATE user SET athamount=athamount-'" + transferamount.toString() + "' WHERE id=" + req.user.id;
+                                                pool.query(vsql, function (error, rows1, fields) {
+                                                    var vsql = "INSERT INTO currencytransfer (userid, amount,fromaddr, toaddr, startdate, enddate, status, tx) VALUES ('" + req.user.id + "','" + transferamount + "', '" + ATHaddress + "', '" + req.user.athaddr + "','" + pool.mysqlNow() + "','" + pool.mysqlNow() + "'," + TX_FINISHED + ",'" + tx + "')";
+                                                    logger.info("#server.funds.post.funds.movetotransfer: SQL: %s", vsql);
+                                                    pool.query(vsql, function (error, rows, fields) {
+                                                        if (error) {
+                                                            logger.error("#server.funds.post.funds.movetotransfer: Error: %s", error);
+                                                            req.flash('danger', 'An error occured: ' + error);
+                                                            res.redirect('/');
+                                                        } else {
+                                                            req.flash('success', 'Funds are withdrawn. It might take a minute to let the blockchain to settle it.');
+                                                            res.redirect('/funds');
+                                                        }
+                                                    });
+                                                });
+                                            }
+
                                         });
                                     }
-
                                 });
-                            });
+                            }
                         }
                     }
                 }

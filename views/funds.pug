@@ -18,8 +18,15 @@ block content
               .p-2
             .input-group-prepend
               .input-group-text Address
-              input#athaddr.form-control(type='text', name='athaddress', aria-describedby='inputGroupPrepend', required='', value=user.athaddr, disabled)
+              input#athaddr.form-control(type='text', name='athaddress', aria-describedby='inputGroupPrepend', required='', value=user.athaddr, readonly)
               button(onclick="myFunction('athaddr')") Copy
+              script.
+                function myFunction(inputvar) {
+                  var copyText = document.getElementById(inputvar);
+                  copyText.select();
+                  document.execCommand("copy");
+                }
+
 
         p ... and a gaming account which will be used in any games in the Atheios ecosystem.
         .bd-example.bg-white
@@ -38,6 +45,7 @@ block content
               .input-group-prepend
                 span#inputGroupPrepend.input-group-text Transfer account, ATH
               input#athamount.form-control(type='text' name='athamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='', readonly, value=amount)
+
             p
             .input-group
               .input-group-prepend
@@ -48,6 +56,16 @@ block content
               .input-group-prepend
                 span#inputGroupPrepend.input-group-text ATH to transfer
                 input#transferamount.form-control(type='text', name='transferamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='')
+                button(type="button", onclick="fill('100')") 100%
+                button(type="button", onclick="fill('50')") 50%
+                button(type="button", onclick="fill('25')") 25%
+                script.
+                  function fill(inputvar) {
+                    var txt = document.getElementById("athamount").value;
+                    document.getElementById("transferamount").value = ((inputvar / 100) * txt - 0.00242002);
+                  }
+
+
             small#validationATHHelp.form-text.text-muted
               | Current transaction fee: 0.00042002 ATH. Amount needs to be atleast reduced with that.
           p
@@ -64,18 +82,27 @@ block content
           #form-group
             .input-group
               .input-group-prepend
-                span#inputGroupPrepend.input-group-text Bloxxchain account ATH
-              input#validationATH.form-control(type='text', name='hotamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='', readonly, value=user.athamount)
+                span#inputGroupPrepend.input-group-text Gaming account ATH
+              input#mtthotamount.form-control(type='text', name='hotamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='', readonly, value=user.athamount)
             p
             .input-group
               .input-group-prepend
                 span#inputGroupPrepend.input-group-text Transfer account, ATH
-              input#validationATHaddr.form-control(type='text' name='athamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='', readonly, value=amount)
+              input#mttathamount.form-control(type='text' name='athamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='', readonly, value=amount)
             p
             .input-group
               .input-group-prepend
                 span#inputGroupPrepend.input-group-text ATH to transfer
-                input#validationATH.form-control(type='text', name='transferamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='')
+                input#mtttransferamount.form-control(type='text', name='transferamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='')
+                button(type="button", onclick="fill2('100')") 100%
+                button(type="button", onclick="fill2('50')") 50%
+                button(type="button", onclick="fill2('25')") 25%
+                script.
+                  function fill2(inputvar) {
+                    var txt = document.getElementById("mtthotamount").value;
+                    document.getElementById("mtttransferamount").value = ((inputvar / 100) * txt - 0.00242002);
+                  }
+
             small#validationATHHelp.form-text.text-muted
               | Current transaction fee: 0.00042002 ATH. Amount needs to be atleast reduced with that.
           p
@@ -93,21 +120,30 @@ block content
             .input-group.mb-3
               .input-group-prepend
                 span#inputGroupPrepend.input-group-text From
-                input#withdrawTranserAddr.form-control(size='50', type='text' name='athaddress', aria-label="Transfer address" ,aria-describedby='inputGroupPrepend', required='', value=user.athaddr, disabled)
+                input#wdathaddress.form-control(size='50', type='text' name='athaddress', aria-label="Transfer address" ,aria-describedby='inputGroupPrepend', required='', value=user.athaddr, disabled)
                 .p-2
               .input-group-prepend
                 span#inputGroupPrepend.input-group-text ATH
-                input#withdrawTranserValue.form-control(type='text', name='amount', placeholder='Amount',aria-label="Value stored in transfer account", aria-describedby='inputGroupPrepend', required='', disabled, value=amount)
+                input#wdamount.form-control(type='text', name='amount', placeholder='Amount',aria-label="Value stored in transfer account", aria-describedby='inputGroupPrepend', required='', disabled, value=amount)
 
             .input-group
               .input-group-prepend
                 span#inputGroupPrepend.input-group-text To
-                input#validationATHdeposit.form-control(size='50', type='text' name='depositaddr', aria-describedby='inputGroupPrepend', required='', value=user.depositaddr)
+                input#wddepositaddress.form-control(size='50', type='text' name='depositaddr', aria-describedby='inputGroupPrepend', required='', value=user.depositaddr)
             p
             .input-group
               .input-group-prepend
                 span#inputGroupPrepend.input-group-text ATH to transfer
-                input#validationATH.form-control(type='text', name='transferamount', placeholder='Amount', aria-describedby='inputGroupPrepend', required='')
+                input#wdtransferamount.form-control(type='text', name='transferamount3', placeholder='Amount', aria-describedby='inputGroupPrepend', required='')
+                button(type="button", onclick="fill3('100')") 100%
+                button(type="button", onclick="fill3('50')") 50%
+                button(type="button", onclick="fill3('25')") 25%
+                script.
+                  function fill3(inputvar) {
+                    var txt = document.getElementById("wdamount").value;
+                    document.getElementById("wdtransferamount").value = ((inputvar / 100) * txt - 0.00242002);
+                  }
+
             small#validationATHHelp.form-text.text-muted
               | Current transaction fee: 0.00042002 ATH. Amount needs to be atleast reduced with that.
 
@@ -154,20 +190,4 @@ block content
                   p Ongoing
               td
                 a(href="https://explorer.atheios.org/tx/" + rows.tx, rel="noopener noreferrer", target="_blank") TX link
-  script.
-    function myFunction(inputvar) {
-      var copyText = document.getElementById(inputvar);
-      copyText.select();
-      copyText.setSelectionRange(0, 99999)
-      document.execCommand("copy");
-    }
-    function myFunction() {
-      var copyText = document.getElementById("myInput");
-      copyText.select();
-      copyText.setSelectionRange(0, 99999);
-      document.execCommand("copy");
-
-      var tooltip = document.getElementById("myTooltip");
-      tooltip.innerHTML = "Copied: " + copyText.value;
-    }
 

@@ -14,6 +14,7 @@ router.get('/register', function(req, res){
     title:'Portal | Register',
     version: version
   });
+
 });
 
 // Register Form
@@ -24,6 +25,13 @@ router.get('/reset', function(req, res){
   });
 });
 
+// Reset Form
+router.get('/resetpassword', function(req, res){
+  res.render('resetpassword', {
+    title:'Portal | Password reset procedure',
+    version: version
+  });
+});
 
 // Register Proccess
 router.post('/register', [
@@ -58,8 +66,7 @@ router.post('/register', [
     logger.info("SQL: %s", sql);
     pool.query(sql, function (error, rows, fields) {
       if (error) {
-        if (debugon)
-          logger.info(' >>> DEBUG SQL failed: %s', error);
+        logger.error('#server.users.post.register: Error %s', error);
         throw error;
       } else {
         if (rows.length == 0) {
@@ -67,23 +74,22 @@ router.post('/register', [
           logger.info("SQL: %s", sql);
           pool.query(sql, function (error, rows, fields) {
             if (error) {
-              if (debugon)
-                logger.info(' >>> DEBUG SQL failed: %s', error);
+              logger.error('#server.users.post.register: Error %s', error);
               throw error;
             } else {
               if (rows.length == 0) {
                 bcrypt.genSalt(10, function (err, salt) {
                   bcrypt.hash(password, salt, function (err, hash) {
                     if (err) {
-                      logger.error(err);
+                      logger.error('#server.users.post.register: Error %s', err);
                     }
                     var rand = makeid(50);
                     var vsql = "INSERT INTO user (username, displayname, email, password, depositaddr, athamount, logincnt, lastlogin, register, rand, options) VALUES (" + pool.escape(username) + "," + pool.escape(displayname) + "," + pool.escape(email) + ", '" + hash + "', " + pool.escape(depositaddr) + ", 0, 0,'" + pool.mysqlNow() + "','" + pool.mysqlNow() + "', '" + rand + "'," + option + ")";
                     logger.info("SQL: %s", vsql);
                     pool.query(vsql, function (error, rows, fields) {
                       if (error) {
-                        if (debugon)
-                          console.log('>>> Error: ' + error);
+                        logger.error('#server.users.post.register: Error %s', error);
+                        throw error;
                       } else {
                         confmail = new Mail();
                         confmail.sendMail(email, "Atheios game account activation", 'Welcome to https://play.atheios.org. Please confirm Your mail by clicking this link: ' + baseurl + '/activate?id=' + rand + ' .');
@@ -120,14 +126,12 @@ router.get('/logout', function(req, res){
 router.get('/activate', function(req, res){
   var option=0;
 
-  logger.info(">>>> Debug (fn=activate): %s",req.query.id);
+  logger.info("#server.routes.users.get.activate: id: %s",req.query.id);
   var sql = "SELECT * FROM user WHERE rand = " + pool.escape(req.query.id);
-  logger.info("SQL: %s", sql);
+  logger.info("#server.routes.users: SQL: %s", sql);
   pool.query(sql, function (error, rows, fields) {
     if (error) {
-      if (debugon)
-        console.log(' >>> DEBUG SQL failed', error);
-      guess_spam = false;
+      logger.error("#server.routes.users.get.activate: %s",error);
       throw error;
     }
     if (rows.length == 1) {
@@ -144,26 +148,25 @@ router.get('/activate', function(req, res){
 
         athGetAddress(async (error, athaddress) => {
           if (error) {
-            if (debugon)
-              logger.error(' >>> DEBUG athGetAddress failed: %s', error);
+            logger.error("#server.routes.users.get.activate: %s",error);
+            throw error;
           } else {
             // If this is a new account and it has been requested to get 10 ATH then we move the 10ATH
             // to the playpot address and we add 10 ATH to the users hot address
             if (athamount>0) {
               athdoWithdraw(config.NEWUSERFUNDADDRESS, config.ATHADDRESS, athamount, async (error, tx) => {
                 if (error) {
+                  logger.error("#server.routes.users.get.activate: %s",error);
                   req.flash('danger', 'An error occured: ' + error);
                   res.redirect('/manage');
                 } else {
-                  if (debugon) {
-                    logger.info(">>>> DEBUG NEWUSER fund transfer, 10ATH: %s", tx);
-                  }
+                  logger.info("#server.routes.users.get.activate: 10 ATH transferred: %s", tx);
                   var vsql = "UPDATE user SET athaddr='" + athaddress + "', athamount="+ athamount +", options=" + newoption + " WHERE rand='" + req.query.id + "'";
-                  logger.info("SQL: %s", vsql);
+                  logger.info("server.routes.users.get.activate: SQL: %s", vsql);
                   pool.query(vsql, function (error, rows, fields) {
                     if (error) {
-                      if (debugon)
-                        logger.error('>>> Error: %s', error);
+                      logger.error("#server.routes.users.get.activate: %s",error);
+                      throw error;
                     } else {
                       req.flash('success', 'Account is activated');
                       res.redirect('/login');
@@ -176,11 +179,11 @@ router.get('/activate', function(req, res){
             } else {
               // In no money needs to be moved and we activate the account
               var vsql = "UPDATE user SET athaddr='" + athaddress + "', athamount=0, options=" + newoption + " WHERE rand='" + req.query.id + "'";
-              logger.info("SQL: %s", vsql);
+              logger.info("#server.routes.users.get.activate: SQL: %s", vsql);
               pool.query(vsql, function (error, rows, fields) {
                 if (error) {
-                  if (debugon)
-                    logger.error('>>> Error: %s', error);
+                  logger.error("#server.routes.users.get.activate: %s",error);
+                  throw error;
                 } else {
                   req.flash('success', 'Account is activated');
                   res.redirect('/login');
@@ -193,6 +196,11 @@ router.get('/activate', function(req, res){
 
         });
       }
+    } else {
+      logger.error("#server.routes.users.get.activate: Number of matches to large: %s",rows.length);
+      req.flash('danger', 'Account problem. Please contact: contact@atheios.org');
+      res.redirect('/login');
+
     }
   });
 });
@@ -219,8 +227,8 @@ router.post('/update', [
       logger.info("SQL: %s", vsql);
       pool.query(vsql, function (error, rows, fields) {
         if (error) {
-          if (debugon)
-            logger.error('>>> Error: %s' + error);
+          logger.error('#server.funds.post.update: Error %s', error);
+          throw error;
         }
       });
       req.flash('success', 'Account is updated');
@@ -234,41 +242,54 @@ router.post('/update', [
   }
 });
 
-// Register Proccess
-router.post('/preferences', function(req, res){
-  var option=0;
 
-  if (req.body.keys==="arrow") {
-    option|=2;
-  }
-  else {
-    option&=253;
-  }
-
-  if (req.body.theme==="dark") {
-    option|=1;
-  }
-  else {
-    option&=254;
-  }
-  if (req.user) {
-    var vsql = "UPDATE user SET options="+option+" WHERE id=" + req.user.id;
-    logger.info("SQL: %s", vsql);
-    pool.query(vsql, function (error, rows, fields) {
+// Reset password Process
+router.post('/resetpassword', [
+  check('username').isLength({min:3,max:20})
+],function(req, res, next){
+  if (!MISC_validation(req)) {
+    res.redirect('/login');
+  } else {
+    var sql = "SELECT * FROM user WHERE username = " + pool.escape(req.body.username);
+    pool.query(sql, function (error, rows, fields) {
       if (error) {
         if (debugon)
-          logger.error('>>> Error: %s', error);
+          logger.error('Error: %s', error);
+        throw error;
       }
-    });
-    req.flash('success', 'Account is updated');
-    res.redirect('/account');
-  }
-  else {
-    req.flash('success', 'User logged out');
-    res.redirect('/login');
+      if (rows.length == 1) {
+        if ((rows[0].options & 8) == 1) {
+          req.flash('danger', 'You try to reset an account which is not yet activated.');
+          res.redirect('/login');
+        } else {
 
+          // send a mail and move to the password resetting procedure
+          var rand = MISC_makeid(50);
+          // write to database
+          var vsql = "UPDATE user SET reset='" + rand + "', resetcnt=resetcnt+1 WHERE id=" + rows[0].id;
+          pool.query(vsql, function (error, rows1, fields) {
+            if (error) {
+              if (debugon)
+                logger.error('Error: %s', error);
+            }
+            confmail = new Mail();
+            confmail.sendMail(rows[0].email, "Atheios game developer account reset", 'You have requested a password reset from ' + config.httphost + '.\nYour reset code is: ' + rand + ' .');
+          });
+
+
+          req.flash('danger', 'We sent an email to Your registered email address. Check Your email for the reset code.');
+          res.redirect('/resetpassword');
+        }
+      } else {
+        // send a mail and move to the poaasword resetting procedure
+        req.flash('danger', 'We cannot find Your username. Check Your email for the registration mail or contact our support.');
+        res.redirect('/login');
+      }
+
+    });
   }
 });
+
 
 // Reset password Process
 router.post('/resendusername', [
@@ -378,8 +399,8 @@ router.post('/updatepassword', [
           logger.info("SQL: %s", vsql);
           pool.query(vsql, function (error, rows, fields) {
             if (error) {
-              if (debugon)
-                logger.error('>>> Error: %s', error);
+              logger.error('#server.fundss.post.updatepassword: Error %s', error);
+              throw error;
             }
           });
           req.flash('success', 'Account update');
@@ -427,24 +448,16 @@ router.get('/account', function(req, res){
 
     pool.query(vsql, function (error, rows, fields) {
       if (error) {
-        if (debugon)
-          console.log('>>> Error: ' + error);
+        logger.error('#server.users.get.account: Error %s', error);
+        throw error;
       }
 
-      if (rows[0].options&&1)
-        darkmode=true;
-      else
-        darkmode=false;
-      if (rows[0].options&&2)
-        keyprefs=true;
-      else
-        keyprefs=false;
       athGetBalance(rows[0].athaddr, async(error,amount) => {
         if (error || amount == null) {
           res.render("error", {
             title: 'GDP | Account',
             version: version,
-            message: "Atheios connection not working",
+            message: "Atheios blockchain connection not working",
             error: error
           });
           confmail = new Mail();
@@ -460,10 +473,7 @@ router.get('/account', function(req, res){
   } else {
     req.flash('success', 'You are logged out');
     res.redirect('/login');
-
   }
-
-
 });
 
 // Login Process
@@ -476,12 +486,10 @@ router.post('/login', [
     res.redirect('/login');
   } else {
     var sql = "SELECT * FROM user WHERE username =" + pool.escape(req.body.username);
-    logger.info("SQL: %s", sql);
+    logger.info("#server.user.get.login: SQL: %s", sql);
     pool.query(sql, function (error, rows, fields) {
       if (error) {
-        if (debugon)
-          console.log(' >>> DEBUG SQL failed', error);
-        guess_spam = false;
+        logger.error('#server.users.post.login: Error %s', error);
         throw error;
       }
       if (rows.length == 1 && (rows[0].options & 8) == 0) {
@@ -520,8 +528,8 @@ router.post('/updatepassword', [
           var vsql = "UPDATE user SET password='" + hash + "' WHERE id=" + pool.escape(req.user.id);
           pool.query(vsql, function (error, rows, fields) {
             if (error) {
-              if (debugon)
-                console.log('>>> Error: ' + error);
+              logger.error('#server.funds.post.updatepassword: Error %s', error);
+              throw error;
             }
           });
           req.flash('success', 'Account update');
