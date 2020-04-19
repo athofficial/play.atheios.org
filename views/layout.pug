@@ -18,11 +18,13 @@ html(lang='en')
 
     link(href='vendor/bootstrap/css/bootstrap.min.css', rel='stylesheet')
     // Custom Fonts
-    link(href='vendor/fontawesome-free/css/all.min.css', rel='stylesheet', type='text/css')
+    // link(href='vendor/fontawesome-free/css/all.min.css', rel='stylesheet', type='text/css')
     link(href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic', rel='stylesheet', type='text/css')
     link(href='vendor/simple-line-icons/css/simple-line-icons.css', rel='stylesheet')
     // Custom CSS
     link(href='css/stylish-portfolio.min.css', rel='stylesheet')
+    script(defer="" src="/js/brands.js")
+    script(defer="" src="/js/fontawesome.js")
 
 body
   .kpicss_bg-img
@@ -30,6 +32,9 @@ body
       a.navbar-brand(href='/').text-light
         img(src='images/ath_60x60.png', alt='Atheios Play - Play with Atheios').align-middle
         |  Atheios gamer portal | #{version}
+      a.navbar-brand(href='http://bugs.atheios.org:8080/enter_bug.cgi?product=Play', target="_blank").text-light
+        i.fab.fa-bug.mr-1.w-4.text-white(aria-hidden="true")
+        |  Found a bug? Report it
       button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarSupportedContent', aria-controls='navbarSupportedContent', aria-expanded='false', aria-label='Toggle navigation')
         span.navbar-toggler-icon
       #navbarSupportedContent.collapse.navbar-collapse

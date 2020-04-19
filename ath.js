@@ -28,6 +28,7 @@ var version = web3.version;
 const ATHPASS=config.ATHPASS;
 const ATHFEE= "0.00242002";
 
+/*
 var subscription = web3.eth.subscribe('pendingTransactions', function(error, result){
     if (!error) {
         logger.info("#server.ath: Subscription: %s",result);
@@ -36,6 +37,7 @@ var subscription = web3.eth.subscribe('pendingTransactions', function(error, res
     .on("data", function(transaction){
         logger.info("#server.ath: Subscription TX: %s",transaction);
     });
+*/
 
 // unsubscribes the subscription
 //subscription.unsubscribe(function(error, success){

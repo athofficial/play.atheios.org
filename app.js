@@ -5,7 +5,6 @@ var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
-var morganlogger = require('morgan');
 const bodyParser = require('body-parser');
 const expressValidator = require('express-validator');
 const flash = require('connect-flash');
@@ -15,7 +14,7 @@ var logger = require("./logger");
 
 // Define the globals
 global.debugon=true;
-global.version="0.1.2";
+global.version="0.1.3";
 
 
 // Init database
