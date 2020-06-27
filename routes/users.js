@@ -315,7 +315,7 @@ router.post('/resendusername', [
         } else {
 
           confmail = new Mail();
-          confmail.sendMail(rows[0].email, "Atheios game developer account", 'You have requested You username from ' + config.httphost + '.\nYour username is: ' + rows[0].name + ' .');
+          confmail.sendMail(rows[0].email, "Atheios game developer account", 'You have requested Your username from ' + config.httphost + '.\nYour username is: ' + rows[0].username + ' .');
         }
 
 

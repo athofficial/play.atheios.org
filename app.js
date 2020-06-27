@@ -14,7 +14,7 @@ var logger = require("./logger");
 
 // Define the globals
 global.debugon=true;
-global.version="0.1.3";
+global.version="0.1.4";
 
 
 // Init database
